@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
+import six
+
 from collections import OrderedDict
 
 
@@ -37,7 +39,7 @@ class _EnumDict(dict):
 
     """
     def __init__(self):
-        super().__init__()
+        super(_EnumDict, self).__init__()
         self._member_names = []
         self._ignore = []
 
@@ -75,7 +77,14 @@ class _EnumDict(dict):
                 # enum overwriting a descriptor?
                 raise TypeError('%r already defined as: %r' % (key, self[key]))
             self._member_names.append(key)
-        super().__setitem__(key, value)
+        super(_EnumDict, self).__setitem__(key, value)
+
+    @classmethod
+    def py2_init(cls, fields):
+        _enum_dict = cls()
+        for key, value in six.iteritems(fields):
+            _enum_dict[key] = value
+        return _enum_dict
 
 
 # Dummy value for Enum as EnumMeta explicitly checks for it, but of course
@@ -97,6 +106,10 @@ class EnumMeta(type):
         # cannot be mixed with other types (int, float, etc.) if it has an
         # inherited __new__ unless a new __new__ is defined (or the resulting
         # class will fail).
+
+        if six.PY2:
+            # python2没有__prepare__，所以需要单独初始化
+            classdict = _EnumDict.py2_init(classdict)
 
         # remove any keys listed in _ignore_
         classdict.setdefault('_ignore_', []).append('_ignore_')
@@ -126,7 +139,7 @@ class EnumMeta(type):
             classdict['__doc__'] = 'An enumeration.'
 
         # create our new Enum type
-        enum_class = super().__new__(metacls, cls, bases, classdict)
+        enum_class = super(EnumMeta, metacls).__new__(metacls, cls, bases, classdict)
         enum_class._member_names_ = []               # names in definition order
         enum_class._member_map_ = OrderedDict()      # name->value map
         enum_class._member_type_ = member_type
@@ -239,7 +252,7 @@ class EnumMeta(type):
         # (see issue19025).
         if attr in cls._member_map_:
             raise AttributeError("%s: cannot delete Enum member." % cls.__name__)
-        super().__delattr__(attr)
+        super(EnumMeta, cls).__delattr__(attr)
 
     def __dir__(self):
         return ['__class__', '__doc__', '__members__', '__module__'] + self._member_names_
@@ -258,7 +271,7 @@ class EnumMeta(type):
         try:
             return cls._member_map_[name]
         except KeyError:
-            raise AttributeError(name) from None
+            six.raise_from(AttributeError(name), None)
 
     def __getitem__(cls, name):
         return cls._member_map_[name]
@@ -296,7 +309,7 @@ class EnumMeta(type):
         member_map = cls.__dict__.get('_member_map_', {})
         if name in member_map:
             raise AttributeError('Cannot reassign members.')
-        super().__setattr__(name, value)
+        super(EnumMeta, cls).__setattr__(name, value)
 
     @staticmethod
     def _get_mixins_(bases):
@@ -372,7 +385,7 @@ class EnumMeta(type):
         return __new__, save_new, use_args
 
 
-class Enum(metaclass=EnumMeta):
+class Enum(six.with_metaclass(EnumMeta)):
     """Generic enumeration.
     Derive from this class to define new enumerations.
     """
@@ -465,7 +478,7 @@ class ChoiceType(object):
             raise TypeError('value should be a tuple, %r is a %s' % (value, type(value)))
         if len(value) < 2:
             raise ValueError('len(%r) = %d , len should be >= 2' % (value, len(value), ))
-        if not isinstance(value[1], str):
+        if not isinstance(value[1], six.string_types):
             raise TypeError('value[1] %r use for label, should be a string' % (value[1], ))
 
     @property
@@ -485,13 +498,13 @@ class ChoiceType(object):
 class EnumChoiceMeta(EnumMeta):
 
     def __getattr__(cls, name):
-        return super().__getattr__(name).value
+        return super(EnumChoiceMeta, cls).__getattr__(name).value
 
     def __iter__(cls):
         return (cls._member_map_[name].option for name in cls._member_names_)
 
 
-class ChoiceEnum(ChoiceType, Enum, metaclass=EnumChoiceMeta):
+class ChoiceEnum(six.with_metaclass(EnumChoiceMeta, ChoiceType, Enum)):
 
     @classmethod
     def get_label(cls, key, default_value=None):
