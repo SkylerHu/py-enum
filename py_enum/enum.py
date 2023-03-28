@@ -138,6 +138,16 @@ class EnumMeta(type):
         if '__doc__' not in classdict:
             classdict['__doc__'] = 'An enumeration.'
 
+        # 为了兼容 Python2 从后面挪到了前面
+        # replace any other __new__ with our own (as long as Enum is not None,
+        # anyway) -- again, this is to support pickle
+        if Enum is not None:
+            # if the user defined their own __new__, save it before it gets
+            # clobbered in case they subclass later
+            if save_new:
+                classdict['__new_member__'] = __new__
+            classdict['__new__'] = Enum.__new__
+
         # create our new Enum type
         enum_class = super(EnumMeta, metacls).__new__(metacls, cls, bases, classdict)
         enum_class._member_names_ = []               # names in definition order
@@ -219,15 +229,6 @@ class EnumMeta(type):
             enum_method = getattr(first_enum, name, None)
             if obj_method is not None and obj_method is class_method:
                 setattr(enum_class, name, enum_method)
-
-        # replace any other __new__ with our own (as long as Enum is not None,
-        # anyway) -- again, this is to support pickle
-        if Enum is not None:
-            # if the user defined their own __new__, save it before it gets
-            # clobbered in case they subclass later
-            if save_new:
-                enum_class.__new_member__ = __new__
-            enum_class.__new__ = Enum.__new__
 
         # py3 support for definition order (helps keep py2/py3 code in sync)
         if _order_ is not None:
@@ -483,11 +484,18 @@ class ChoiceType(object):
 
     @property
     def value(self):
+        """枚举 具体 值"""
         return self._value_
 
     @property
     def label(self):
+        """枚举值对应的显示文案"""
         return self._label_
+
+    @property
+    def name(self):
+        """枚举的名称/Key"""
+        return self._name_
 
     @property
     def option(self):
