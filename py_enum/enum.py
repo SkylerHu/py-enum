@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 # coding=utf-8
+"""
+代码源于python3源码，删除了enum部功能；
+增加了python2的支持；
+"""
 import six
+import sys
 
 from collections import OrderedDict
+from .utils import DynamicClassAttribute
 
 
 __all__ = ['EnumMeta', 'Enum', 'unique']
@@ -53,7 +59,7 @@ class _EnumDict(dict):
 
         """
         if _is_sunder(key):
-            if key not in ('_order_', '_create_pseudo_member_', '_ignore_'):
+            if key not in ('_order_', '_create_pseudo_member_', '_ignore_', '_missing_', '_generate_next_value_'):
                 raise ValueError('_names_ are reserved for future Enum use')
             if key == '_ignore_':
                 if isinstance(value, str):
@@ -154,6 +160,14 @@ class EnumMeta(type):
         enum_class._member_map_ = OrderedDict()      # name->value map
         enum_class._member_type_ = member_type
 
+        # save DynamicClassAttribute attributes from super classes so we know
+        # if we can take the shortcut of storing members in the class dict
+        dynamic_attributes = {
+            k for c in enum_class.mro()
+            for k, v in c.__dict__.items()
+            if isinstance(v, DynamicClassAttribute)
+        }
+
         # Reverse value->name map for hashable values.
         enum_class._value2member_map_ = {}
 
@@ -211,6 +225,9 @@ class EnumMeta(type):
                 # Aliases don't appear in member names (only in __members__).
                 enum_class._member_names_.append(member_name)
             # performance boost for any member that would not shadow
+            # a DynamicClassAttribute
+            if member_name not in dynamic_attributes:
+                setattr(enum_class, member_name, enum_member)
             # now add to _member_map_
             enum_class._member_map_[member_name] = enum_member
             try:
@@ -239,14 +256,50 @@ class EnumMeta(type):
 
         return enum_class
 
+    def __call__(cls, value, names=None, *, module=None, qualname=None, type=None, start=1):
+        """Either returns an existing member, or creates a new enum class.
+
+        This method is used both when an enum class is given a value to match
+        to an enumeration member (i.e. Color(3)) and for the functional API
+        (i.e. Color = Enum('Color', names='RED GREEN BLUE')).
+
+        When used for the functional API:
+
+        `value` will be the name of the new class.
+
+        `names` should be either a string of white-space/comma delimited names
+        (values will start at `start`), or an iterator/mapping of name, value pairs.
+
+        `module` should be set to the module this class is being created in;
+        if it is not set, an attempt to find that module will be made, but if
+        it fails the class will not be picklable.
+
+        `qualname` should be set to the actual location this class can be found
+        at in its module; by default it is set to the global scope.  If this is
+        not correct, unpickling will fail in some circumstances.
+
+        `type`, if set, will be mixed in as the first base class.
+
+        """
+        if names is None:  # simple value lookup
+            return cls.__new__(cls, value)
+        # otherwise, functional API: we're creating a new Enum type
+        return cls._create_(value, names, module=module, qualname=qualname, type=type, start=start)
+
     def __bool__(self):
         """
         classes/types should always be True.
         """
         return True
 
-    def __contains__(cls, value):
-        return value in cls._value2member_map_
+    def __contains__(cls, member):
+        if not isinstance(member, Enum):
+            import warnings
+            warnings.warn(
+                    "using non-Enums in containment checks will raise "
+                    "TypeError in Python 3.8",
+                    DeprecationWarning, 2)
+        return isinstance(member, cls) and member._name_ in cls._member_map_
 
     def __delattr__(cls, attr):
         # nicer error message when someone tries to delete an attribute
@@ -311,6 +364,59 @@ class EnumMeta(type):
         if name in member_map:
             raise AttributeError('Cannot reassign members.')
         super(EnumMeta, cls).__setattr__(name, value)
+
+    def _create_(cls, class_name, names, *, module=None, qualname=None, type=None, start=1):
+        """Convenience method to create a new Enum class.
+
+        `names` can be:
+
+        * A string containing member names, separated either with spaces or
+          commas.  Values are incremented by 1 from `start`.
+        * An iterable of member names.  Values are incremented by 1 from `start`.
+        * An iterable of (member name, value) pairs.
+        * A mapping of member name -> value pairs.
+
+        """
+        metacls = cls.__class__
+        bases = (cls, ) if type is None else (type, cls)
+        _, first_enum = cls._get_mixins_(bases)
+        classdict = metacls.__prepare__(class_name, bases)
+
+        # special processing needed for names?
+        if isinstance(names, str):
+            names = names.replace(',', ' ').split()
+        if isinstance(names, (tuple, list)) and names and isinstance(names[0], str):
+            original_names, names = names, []
+            last_values = []
+            for count, name in enumerate(original_names):
+                value = first_enum._generate_next_value_(name, start, count, last_values[:])
+                last_values.append(value)
+                names.append((name, value))
+
+        # Here, names is either an iterable of (name, value) or a mapping.
+        for item in names:
+            if isinstance(item, str):
+                member_name, member_value = item, names[item]
+            else:
+                member_name, member_value = item
+            classdict[member_name] = member_value
+        enum_class = metacls.__new__(metacls, class_name, bases, classdict)
+
+        # TODO: replace the frame hack if a blessed way to know the calling
+        # module is ever developed
+        if module is None:
+            try:
+                module = sys._getframe(2).f_globals['__name__']
+            except (AttributeError, ValueError, KeyError):
+                pass
+        if module is None:
+            _make_class_unpicklable(enum_class)
+        else:
+            enum_class.__module__ = module
+        if qualname is not None:
+            enum_class.__qualname__ = qualname
+
+        return enum_class
 
     @staticmethod
     def _get_mixins_(bases):
@@ -409,6 +515,39 @@ class Enum(six.with_metaclass(EnumMeta)):
             for member in cls._member_map_.values():
                 if member._value_ == value:
                     return member
+
+        # still not found -- try _missing_ hook
+        try:
+            exc = None
+            result = cls._missing_(value)
+        except Exception as e:
+            exc = e
+            result = None
+        if isinstance(result, cls):
+            return result
+        else:
+            ve_exc = ValueError("%r is not a valid %s" % (value, cls.__name__))
+            if result is None and exc is None:
+                raise ve_exc
+            elif exc is None:
+                exc = TypeError(
+                        'error in %s._missing_: returned %r instead of None or a valid member'
+                        % (cls.__name__, result)
+                        )
+            exc.__context__ = ve_exc
+            raise exc
+
+    def _generate_next_value_(name, start, count, last_values):
+        for last_value in reversed(last_values):
+            try:
+                return last_value + 1
+            except TypeError:
+                pass
+        else:
+            return start
+
+    @classmethod
+    def _missing_(cls, value):
         raise ValueError("%r is not a valid %s" % (value, cls.__name__))
 
     def __repr__(self):
@@ -444,83 +583,27 @@ class Enum(six.with_metaclass(EnumMeta)):
     def __hash__(self):
         return hash(self._name_)
 
+    def __reduce_ex__(self, proto):
+        return self.__class__, (self._value_, )
+
+    @DynamicClassAttribute
+    def name(self):
+        """The name of the Enum member."""
+        return self._name_
+
+    @DynamicClassAttribute
+    def value(self):
+        """The value of the Enum member."""
+        return self._value_
+
 
 def unique(enumeration):
     """Class decorator for enumerations ensuring unique member values."""
     duplicates = []
-    for name, member in enumeration.__members__.items():
+    for name, member in six.iteritems(enumeration.__members__):
         if name != member.name:
             duplicates.append((name, member.name))
     if duplicates:
         alias_details = ', '.join(["%s -> %s" % (alias, name) for (alias, name) in duplicates])
         raise ValueError('duplicate values found in %r: %s' % (enumeration, alias_details))
     return enumeration
-
-
-class ChoiceType(object):
-
-    def __new__(cls, *args):
-        cls.check_value_type(args)
-        self = object.__new__(cls)
-        self._value_ = args[0]
-        self._label_ = self._value_
-        self.extra = None
-        if len(args) > 0:
-            self._label_ = args[1]
-            if len(args) == 3:
-                self.extra = args[2]
-            elif len(args) > 3:
-                self.extra = args[2:]
-        return self
-
-    @classmethod
-    def check_value_type(cls, value):
-        if not isinstance(value, tuple):
-            raise TypeError('value should be a tuple, %r is a %s' % (value, type(value)))
-        if len(value) < 2:
-            raise ValueError('len(%r) = %d , len should be >= 2' % (value, len(value), ))
-        if not isinstance(value[1], six.string_types):
-            raise TypeError('value[1] %r use for label, should be a string' % (value[1], ))
-
-    @property
-    def value(self):
-        """枚举 具体 值"""
-        return self._value_
-
-    @property
-    def label(self):
-        """枚举值对应的显示文案"""
-        return self._label_
-
-    @property
-    def name(self):
-        """枚举的名称/Key"""
-        return self._name_
-
-    @property
-    def option(self):
-        """用于choices枚举及展示使用"""
-        return self.value, self.label
-
-
-class EnumChoiceMeta(EnumMeta):
-
-    def __getattr__(cls, name):
-        return super(EnumChoiceMeta, cls).__getattr__(name).value
-
-    def __iter__(cls):
-        return (cls._member_map_[name].option for name in cls._member_names_)
-
-
-class ChoiceEnum(six.with_metaclass(EnumChoiceMeta, ChoiceType, Enum)):
-
-    @classmethod
-    def get_label(cls, key, default_value=None):
-        try:
-            return cls._value2member_map_[key].label
-        except KeyError:
-            return default_value
-
-    @classmethod
-    def get_extra(cls, key):
-        return cls._value2member_map_[key].extra
