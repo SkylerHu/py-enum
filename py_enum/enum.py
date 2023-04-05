@@ -4,6 +4,7 @@
 代码源于python3源码，删除了enum部功能；
 增加了python2的支持；
 """
+from __future__ import print_function
 import six
 import sys
 
@@ -87,10 +88,10 @@ class _EnumDict(dict):
 
     @classmethod
     def py2_init(cls, fields):
-        _enum_dict = cls()
+        self = cls()
         for key, value in six.iteritems(fields):
-            _enum_dict[key] = value
-        return _enum_dict
+            self[key] = value
+        return self
 
 
 # Dummy value for Enum as EnumMeta explicitly checks for it, but of course
@@ -191,8 +192,7 @@ class EnumMeta(type):
         # we instantiate first instead of checking for duplicates first in case
         # a custom __new__ is doing something funky with the values -- such as
         # auto-numbering ;)
-        for member_name in classdict._member_names:
-            value = enum_members[member_name]
+        for member_name, value in six.iteritems(enum_members):
             if not isinstance(value, tuple):
                 args = (value, )
             else:
@@ -217,7 +217,7 @@ class EnumMeta(type):
             enum_member.__init__(*args)
             # If another member with the same value was already defined, the
             # new member becomes an alias to the existing one.
-            for name, canonical_member in enum_class._member_map_.items():
+            for name, canonical_member in six.iteritems(enum_class._member_map_):
                 if canonical_member._value_ == enum_member._value_:
                     enum_member = canonical_member
                     break
@@ -256,7 +256,7 @@ class EnumMeta(type):
 
         return enum_class
 
-    def __call__(cls, value, names=None, *, module=None, qualname=None, type=None, start=1):
+    def __call__(cls, value, names=None, module=None, qualname=None, type=None, start=1, **kwargs):
         """Either returns an existing member, or creates a new enum class.
 
         This method is used both when an enum class is given a value to match
@@ -284,7 +284,7 @@ class EnumMeta(type):
         if names is None:  # simple value lookup
             return cls.__new__(cls, value)
         # otherwise, functional API: we're creating a new Enum type
-        return cls._create_(value, names, module=module, qualname=qualname, type=type, start=start)
+        return cls._create_(value, names, module=module, qualname=qualname, type=type, start=start, **kwargs)
 
     def __bool__(self):
         """
@@ -365,7 +365,7 @@ class EnumMeta(type):
             raise AttributeError('Cannot reassign members.')
         super(EnumMeta, cls).__setattr__(name, value)
 
-    def _create_(cls, class_name, names, *, module=None, qualname=None, type=None, start=1):
+    def _create_(cls, class_name, names, module=None, qualname=None, type=None, start=1, **kwargs):
         """Convenience method to create a new Enum class.
 
         `names` can be:
@@ -537,6 +537,7 @@ class Enum(six.with_metaclass(EnumMeta)):
             exc.__context__ = ve_exc
             raise exc
 
+    @staticmethod
     def _generate_next_value_(name, start, count, last_values):
         for last_value in reversed(last_values):
             try:

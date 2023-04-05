@@ -3,9 +3,10 @@
 """
 来源于Python3源码，为了兼容python2下使用
 """
+from __future__ import print_function
 
 
-class DynamicClassAttribute:
+class DynamicClassAttribute(object):
     """Route attribute access on a class to __getattr__.
 
     This is a descriptor, used to define attributes that act differently when

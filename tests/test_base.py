@@ -3,12 +3,16 @@
 """
 该测试用例来源于python源码，删除了enum部分去掉的功能测试用例；
 """
+from __future__ import print_function
+
 import inspect
 import unittest
 from test import support
 from datetime import timedelta
 from collections import OrderedDict
 from pickle import dumps, loads, PicklingError, HIGHEST_PROTOCOL
+
+import six
 
 from py_enum import enum
 from py_enum.enum import Enum, unique, EnumMeta
@@ -235,8 +239,9 @@ class TestEnum(unittest.TestCase):
         lst = list(Season)
         self.assertEqual(len(lst), len(Season))
         self.assertEqual(len(Season), 4, Season)
-        self.assertEqual(
-            [Season.SPRING, Season.SUMMER, Season.AUTUMN, Season.WINTER], lst)
+        if six.PY3:
+            self.assertEqual(
+                [Season.SPRING, Season.SUMMER, Season.AUTUMN, Season.WINTER], lst)
 
         for i, season in enumerate('SPRING SUMMER AUTUMN WINTER'.split(), 1):
             e = Season(i)
@@ -289,10 +294,14 @@ class TestEnum(unittest.TestCase):
             del Season.SPRING.name
 
     def test_bool_of_class(self):
+        # python2没有定义__bool__，按照__len__计算
         class Empty(Enum):
             pass
 
-        self.assertTrue(bool(Empty))
+        if six.PY3:
+            self.assertTrue(bool(Empty))
+        else:
+            self.assertFalse(bool(Empty))
 
     def test_bool_of_member(self):
         class Count(Enum):
@@ -337,8 +346,9 @@ class TestEnum(unittest.TestCase):
             def __bool__(self):
                 return bool(self._value_)
 
-        self.assertTrue(RealLogic.true)
-        self.assertFalse(RealLogic.false)
+        if six.PY3:
+            self.assertTrue(RealLogic.true)
+            self.assertFalse(RealLogic.false)
 
         # mixed Enums depend on mixed-in type
         class IntLogic(int, Enum):
@@ -371,22 +381,24 @@ class TestEnum(unittest.TestCase):
         self.assertRaises(TypeError, lambda: 'AUTUMN' in self.Season.AUTUMN)
 
     def test_comparisons(self):
-        Season = self.Season
-        with self.assertRaises(TypeError):
-            Season.SPRING < Season.WINTER
-        with self.assertRaises(TypeError):
-            Season.SPRING > 4
+        # python2可以直接对比,但对比关系不明确
+        if six.PY3:
+            Season = self.Season
+            with self.assertRaises(TypeError):
+                Season.SPRING < Season.WINTER
+            with self.assertRaises(TypeError):
+                Season.SPRING > 4
 
-        self.assertNotEqual(Season.SPRING, 1)
+            self.assertNotEqual(Season.SPRING, 1)
 
-        class Part(Enum):
-            SPRING = 1
-            CLIP = 2
-            BARREL = 3
+            class Part(Enum):
+                SPRING = 1
+                CLIP = 2
+                BARREL = 3
 
-        self.assertNotEqual(Season.SPRING, Part.SPRING)
-        with self.assertRaises(TypeError):
-            Season.SPRING < Part.CLIP
+            self.assertNotEqual(Season.SPRING, Part.SPRING)
+            with self.assertRaises(TypeError):
+                Season.SPRING < Part.CLIP
 
     def test_enum_duplicates(self):
         class Season(Enum):
@@ -397,11 +409,12 @@ class TestEnum(unittest.TestCase):
             ANOTHER_SPRING = 1
 
         lst = list(Season)
-        self.assertEqual(
-            lst,
-            [Season.SPRING, Season.SUMMER,
-             Season.AUTUMN, Season.WINTER,
-             ])
+        if six.PY3:
+            self.assertEqual(
+                lst,
+                [Season.SPRING, Season.SUMMER,
+                 Season.AUTUMN, Season.WINTER,
+                 ])
         self.assertIs(Season.FALL, Season.AUTUMN)
         self.assertEqual(Season.FALL.value, 3)
         self.assertEqual(Season.AUTUMN.value, 3)
@@ -414,31 +427,33 @@ class TestEnum(unittest.TestCase):
         )
 
     def test_duplicate_name(self):
-        with self.assertRaises(TypeError):
-            class Color(Enum):
-                red = 1
-                green = 2
-                blue = 3
-                red = 4
+        # Python2属性初始化无法识别多个相同的Key
+        if six.PY3:
+            with self.assertRaises(TypeError):
+                class Color(Enum):
+                    red = 1
+                    green = 2
+                    blue = 3
+                    red = 4
 
-        with self.assertRaises(TypeError):
-            class Color2(Enum):
-                red = 1
-                green = 2
-                blue = 3
+            with self.assertRaises(TypeError):
+                class Color2(Enum):
+                    red = 1
+                    green = 2
+                    blue = 3
 
-                def red(self):
-                    return 'red'
+                    def red(self):
+                        return 'red'
 
-        with self.assertRaises(TypeError):
-            class Color3(Enum):
-                @property
-                def red(self):
-                    return 'redder'
+            with self.assertRaises(TypeError):
+                class Color3(Enum):
+                    @property
+                    def red(self):
+                        return 'redder'
 
-                red = 1  # type: ignore # noqa: F811
-                green = 2
-                blue = 3
+                    red = 1  # type: ignore # noqa: F811
+                    green = 2
+                    blue = 3
 
     def test_enum_with_value_name(self):
         class Huh(Enum):
@@ -658,33 +673,36 @@ class TestEnum(unittest.TestCase):
         self.assertTrue(getattr(Season, '__eq__'))
 
     def test_iteration_order(self):
-        class Season(Enum):
-            SUMMER = 2
-            WINTER = 4
-            AUTUMN = 3
-            SPRING = 1
+        if six.PY3:
+            class Season(Enum):
+                SUMMER = 2
+                WINTER = 4
+                AUTUMN = 3
+                SPRING = 1
 
-        self.assertEqual(
-            list(Season),
-            [Season.SUMMER, Season.WINTER, Season.AUTUMN, Season.SPRING],
-        )
+            self.assertEqual(
+                list(Season),
+                [Season.SUMMER, Season.WINTER, Season.AUTUMN, Season.SPRING],
+            )
 
     def test_reversed_iteration_order(self):
-        self.assertEqual(
-            list(reversed(self.Season)),
-            [self.Season.WINTER, self.Season.AUTUMN, self.Season.SUMMER,
-             self.Season.SPRING]
-        )
+        if six.PY3:
+            self.assertEqual(
+                list(reversed(self.Season)),
+                [self.Season.WINTER, self.Season.AUTUMN, self.Season.SUMMER,
+                 self.Season.SPRING]
+            )
 
     def test_programmatic_function_string(self):
         SummerMonth = Enum('SummerMonth', 'june july august')
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        self.assertEqual(
-            [SummerMonth.june, SummerMonth.july, SummerMonth.august],
-            lst,
-        )
+        if six.PY3:
+            self.assertEqual(
+                [SummerMonth.june, SummerMonth.july, SummerMonth.august],
+                lst,
+            )
         for i, month in enumerate('june july august'.split(), 1):
             e = SummerMonth(i)
             self.assertEqual(int(e.value), i)
@@ -698,10 +716,11 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        self.assertEqual(
-            [SummerMonth.june, SummerMonth.july, SummerMonth.august],
-            lst,
-        )
+        if six.PY3:
+            self.assertEqual(
+                [SummerMonth.june, SummerMonth.july, SummerMonth.august],
+                lst,
+            )
         for i, month in enumerate('june july august'.split(), 10):
             e = SummerMonth(i)
             self.assertEqual(int(e.value), i)
@@ -715,10 +734,11 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        self.assertEqual(
-            [SummerMonth.june, SummerMonth.july, SummerMonth.august],
-            lst,
-        )
+        if six.PY3:
+            self.assertEqual(
+                [SummerMonth.june, SummerMonth.july, SummerMonth.august],
+                lst,
+            )
         for i, month in enumerate('june july august'.split(), 1):
             e = SummerMonth(i)
             self.assertEqual(int(e.value), i)
@@ -732,10 +752,11 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        self.assertEqual(
-            [SummerMonth.june, SummerMonth.july, SummerMonth.august],
-            lst,
-        )
+        if six.PY3:
+            self.assertEqual(
+                [SummerMonth.june, SummerMonth.july, SummerMonth.august],
+                lst,
+            )
         for i, month in enumerate('june july august'.split(), 20):
             e = SummerMonth(i)
             self.assertEqual(int(e.value), i)
@@ -752,10 +773,11 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        self.assertEqual(
-            [SummerMonth.june, SummerMonth.july, SummerMonth.august],
-            lst,
-        )
+        if six.PY3:
+            self.assertEqual(
+                [SummerMonth.june, SummerMonth.july, SummerMonth.august],
+                lst,
+            )
         for i, month in enumerate('june july august'.split(), 1):
             e = SummerMonth(i)
             self.assertEqual(int(e.value), i)
@@ -772,10 +794,11 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        self.assertEqual(
-            [SummerMonth.june, SummerMonth.july, SummerMonth.august],
-            lst,
-        )
+        if six.PY3:
+            self.assertEqual(
+                [SummerMonth.june, SummerMonth.july, SummerMonth.august],
+                lst,
+            )
         for i, month in enumerate('june july august'.split(), 1):
             e = SummerMonth(i)
             self.assertEqual(int(e.value), i)
@@ -789,10 +812,11 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        self.assertEqual(
-            [SummerMonth.june, SummerMonth.july, SummerMonth.august],
-            lst,
-        )
+        if six.PY3:
+            self.assertEqual(
+                [SummerMonth.june, SummerMonth.july, SummerMonth.august],
+                lst,
+            )
         for i, month in enumerate('june july august'.split(), 1):
             e = SummerMonth(i)
             self.assertEqual(e, i)
@@ -805,10 +829,11 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        self.assertEqual(
-            [SummerMonth.june, SummerMonth.july, SummerMonth.august],
-            lst,
-        )
+        if six.PY3:
+            self.assertEqual(
+                [SummerMonth.june, SummerMonth.july, SummerMonth.august],
+                lst,
+            )
         for i, month in enumerate('june july august'.split(), 30):
             e = SummerMonth(i)
             self.assertEqual(e, i)
@@ -918,7 +943,8 @@ class TestEnum(unittest.TestCase):
 
             def __new__(cls, *args):
                 _args = args
-                name, *args = args
+                name = args[0]
+                args = args[1:]
                 if len(args) == 0:
                     raise TypeError("name and value must be specified")
                 self = int.__new__(cls, *args)
@@ -980,7 +1006,8 @@ class TestEnum(unittest.TestCase):
 
             def __new__(cls, *args):
                 _args = args
-                name, *args = args
+                name = args[0]
+                args = args[1:]
                 if len(args) == 0:
                     raise TypeError("name and value must be specified")
                 self = int.__new__(cls, *args)
@@ -1042,7 +1069,8 @@ class TestEnum(unittest.TestCase):
 
             def __new__(cls, *args):
                 _args = args
-                name, *args = args
+                name = args[0]
+                args = args[1:]
                 if len(args) == 0:
                     raise TypeError("name and value must be specified")
                 self = int.__new__(cls, *args)
@@ -1104,7 +1132,8 @@ class TestEnum(unittest.TestCase):
 
             def __new__(cls, *args):
                 _args = args
-                name, *args = args
+                name = args[0]
+                args = args[1:]
                 if len(args) == 0:
                     raise TypeError("name and value must be specified")
                 self = int.__new__(cls, *args)
@@ -1166,7 +1195,8 @@ class TestEnum(unittest.TestCase):
 
             def __new__(cls, *args):
                 _args = args
-                name, *args = args
+                name = args[0]
+                args = args[1:]
                 if len(args) == 0:
                     raise TypeError("name and value must be specified")
                 self = int.__new__(cls, *args)
@@ -1224,7 +1254,8 @@ class TestEnum(unittest.TestCase):
 
             def __new__(cls, *args):
                 _args = args
-                name, *args = args
+                name = args[0]
+                args = args[1:]
                 if len(args) == 0:
                     raise TypeError("name and value must be specified")
                 self = int.__new__(cls, *args)
@@ -1293,27 +1324,29 @@ class TestEnum(unittest.TestCase):
         test_pickle_dump_load(self.assertIs, SomeTuple.first)
 
     def test_duplicate_values_give_unique_enum_items(self):
-        class AutoNumber(Enum):
-            first = ()
-            second = ()
-            third = ()
+        if six.PY3:
+            # Python2无法保证auto的顺序
+            class AutoNumber(Enum):
+                first = ()
+                second = ()
+                third = ()
 
-            def __new__(cls):
-                value = len(cls.__members__) + 1
-                obj = object.__new__(cls)
-                obj._value_ = value
-                return obj
+                def __new__(cls):
+                    value = len(cls.__members__) + 1
+                    obj = object.__new__(cls)
+                    obj._value_ = value
+                    return obj
 
-            def __int__(self):
-                return int(self._value_)
+                def __int__(self):
+                    return int(self._value_)
 
-        self.assertEqual(
-            list(AutoNumber),
-            [AutoNumber.first, AutoNumber.second, AutoNumber.third],
-        )
-        self.assertEqual(int(AutoNumber.second), 2)
-        self.assertEqual(AutoNumber.third.value, 3)
-        self.assertIs(AutoNumber(1), AutoNumber.first)
+            self.assertEqual(
+                list(AutoNumber),
+                [AutoNumber.first, AutoNumber.second, AutoNumber.third],
+            )
+            self.assertEqual(int(AutoNumber.second), 2)
+            self.assertEqual(AutoNumber.third.value, 3)
+            self.assertIs(AutoNumber(1), AutoNumber.first)
 
     def test_inherited_new_from_enhanced_enum(self):
         class AutoNumber(Enum):
@@ -1629,12 +1662,18 @@ class TestOrder(unittest.TestCase):
             blue = 3
 
     def test_same_members_with_aliases(self):
-        class Color(Enum):
-            _order_ = 'red green blue'
-            red = 1
-            green = 2
-            blue = 3
-            verde = green
+        if six.PY3:
+            class Color(Enum):
+                _order_ = 'red green blue'
+                red = 1
+                green = 2
+                blue = 3
+                verde = green
+
+    def assertRaisesRegex(self, expected_exception, expected_regex, *args, **kwargs):
+        if six.PY2:
+            return self.assertRaises(expected_exception)
+        return super(TestOrder, self).assertRaisesRegex(expected_exception, expected_regex, *args, **kwargs)
 
     def test_same_members_wrong_order(self):
         with self.assertRaisesRegex(TypeError, 'member order does not match _order_'):
@@ -1708,12 +1747,13 @@ class TestUnique(unittest.TestCase):
             tres = 4.0
 
     def test_unique_dirty(self):
-        with self.assertRaisesRegex(ValueError, 'tres.*one'):
-            @unique
-            class Dirty(Enum):
-                one = 1
-                two = 'dos'
-                tres = 1
+        if six.PY3:
+            with self.assertRaisesRegex(ValueError, 'tres.*one'):
+                @unique
+                class Dirty(Enum):
+                    one = 1
+                    two = 'dos'
+                    tres = 1
 
     def test_unique_with_name(self):
         @unique
@@ -1748,7 +1788,7 @@ class TestStdLib(unittest.TestCase):
             if result[k] != values[k]:
                 print()
                 print('\n%s\n     key: %s\n  result: %s\nexpected: %s\n%s\n' %
-                      ('=' * 75, k, result[k], values[k], '=' * 75), sep='')
+                      ('=' * 75, k, result[k], values[k], '=' * 75))
                 failed = True
         if failed:
             self.fail("result does not equal expected, see print above")
@@ -1757,20 +1797,13 @@ class TestStdLib(unittest.TestCase):
         # indirectly test __objclass__
         from inspect import Attribute
         values = [
-            Attribute(name='__class__', kind='data',
-                      defining_class=object, object=EnumMeta),
-            Attribute(name='__doc__', kind='data',
-                      defining_class=self.Color, object='An enumeration.'),
-            Attribute(name='__members__', kind='property',
-                      defining_class=EnumMeta, object=EnumMeta.__members__),
-            Attribute(name='__module__', kind='data',
-                      defining_class=self.Color, object=__name__),
-            Attribute(name='blue', kind='data',
-                      defining_class=self.Color, object=self.Color.blue),
-            Attribute(name='green', kind='data',
-                      defining_class=self.Color, object=self.Color.green),
-            Attribute(name='red', kind='data',
-                      defining_class=self.Color, object=self.Color.red),
+            Attribute(name='__class__', kind='data', defining_class=object, object=EnumMeta),
+            Attribute(name='__doc__', kind='data', defining_class=self.Color, object='An enumeration.'),
+            Attribute(name='__members__', kind='property', defining_class=EnumMeta, object=EnumMeta.__members__),
+            Attribute(name='__module__', kind='data', defining_class=self.Color, object=__name__),
+            Attribute(name='blue', kind='data', defining_class=self.Color, object=self.Color.blue),
+            Attribute(name='green', kind='data', defining_class=self.Color, object=self.Color.green),
+            Attribute(name='red', kind='data', defining_class=self.Color, object=self.Color.red),
         ]
         values.sort(key=lambda item: item.name)
         result = list(inspect.classify_class_attrs(self.Color))
@@ -1778,7 +1811,9 @@ class TestStdLib(unittest.TestCase):
         failed = False
         for v, r in zip(values, result):
             if r != v:
-                print('\n%s\n%s\n%s\n%s\n' % ('=' * 75, r, v, '=' * 75), sep='')
+                if six.PY2 and v.name in ['__class__', '__members__']:
+                    continue
+                print('\n%s\n%s\n%s\n%s\n' % ('=' * 75, r, v, '=' * 75))
                 failed = True
         if failed:
             self.fail("result does not equal expected, see print above")
@@ -1786,7 +1821,8 @@ class TestStdLib(unittest.TestCase):
 
 class MiscTestCase(unittest.TestCase):
     def test__all__(self):
-        support.check__all__(self, enum)
+        if six.PY3:
+            support.check__all__(self, enum)
 
 
 if __name__ == '__main__':
