@@ -239,7 +239,7 @@ class TestEnum(unittest.TestCase):
         lst = list(Season)
         self.assertEqual(len(lst), len(Season))
         self.assertEqual(len(Season), 4, Season)
-        if six.PY3:
+        if not six.PY2:
             self.assertEqual(
                 [Season.SPRING, Season.SUMMER, Season.AUTUMN, Season.WINTER], lst)
 
@@ -298,7 +298,7 @@ class TestEnum(unittest.TestCase):
         class Empty(Enum):
             pass
 
-        if six.PY3:
+        if not six.PY2:
             self.assertTrue(bool(Empty))
         else:
             self.assertFalse(bool(Empty))
@@ -346,7 +346,7 @@ class TestEnum(unittest.TestCase):
             def __bool__(self):
                 return bool(self._value_)
 
-        if six.PY3:
+        if not six.PY2:
             self.assertTrue(RealLogic.true)
             self.assertFalse(RealLogic.false)
 
@@ -361,10 +361,11 @@ class TestEnum(unittest.TestCase):
     def test_contains(self):
         Season = self.Season
         self.assertIn(Season.AUTUMN, Season)
-        with self.assertWarns(DeprecationWarning):
-            self.assertNotIn(3, Season)
-        with self.assertWarns(DeprecationWarning):
-            self.assertNotIn('AUTUMN', Season)
+        if not six.PY2:
+            with self.assertWarns(DeprecationWarning):
+                self.assertNotIn(3, Season)
+            with self.assertWarns(DeprecationWarning):
+                self.assertNotIn('AUTUMN', Season)
 
         val = Season(3)
         self.assertIn(val, Season)
@@ -382,7 +383,7 @@ class TestEnum(unittest.TestCase):
 
     def test_comparisons(self):
         # python2可以直接对比,但对比关系不明确
-        if six.PY3:
+        if not six.PY2:
             Season = self.Season
             with self.assertRaises(TypeError):
                 Season.SPRING < Season.WINTER
@@ -409,7 +410,7 @@ class TestEnum(unittest.TestCase):
             ANOTHER_SPRING = 1
 
         lst = list(Season)
-        if six.PY3:
+        if not six.PY2:
             self.assertEqual(
                 lst,
                 [Season.SPRING, Season.SUMMER,
@@ -428,7 +429,7 @@ class TestEnum(unittest.TestCase):
 
     def test_duplicate_name(self):
         # Python2属性初始化无法识别多个相同的Key
-        if six.PY3:
+        if not six.PY2:
             with self.assertRaises(TypeError):
                 class Color(Enum):
                     red = 1
@@ -631,14 +632,15 @@ class TestEnum(unittest.TestCase):
         self.assertEqual(Theory.__qualname__, 'spanish_inquisition')
 
     def test_class_nested_enum_and_pickle_protocol_four(self):
-        # would normally just have this directly in the class namespace
-        class NestedEnum(Enum):
-            twigs = 'common'
-            shiny = 'rare'
+        if not six.PY2:
+            # would normally just have this directly in the class namespace
+            class NestedEnum(Enum):
+                twigs = 'common'
+                shiny = 'rare'
 
-        self.__class__.NestedEnum = NestedEnum
-        self.NestedEnum.__qualname__ = '%s.NestedEnum' % self.__class__.__name__
-        test_pickle_dump_load(self.assertIs, self.NestedEnum.twigs)
+            self.__class__.NestedEnum = NestedEnum
+            self.NestedEnum.__qualname__ = '%s.NestedEnum' % self.__class__.__name__
+            test_pickle_dump_load(self.assertIs, self.NestedEnum.twigs)
 
     def test_exploding_pickle(self):
         BadPickle = Enum(
@@ -673,7 +675,7 @@ class TestEnum(unittest.TestCase):
         self.assertTrue(getattr(Season, '__eq__'))
 
     def test_iteration_order(self):
-        if six.PY3:
+        if not six.PY2:
             class Season(Enum):
                 SUMMER = 2
                 WINTER = 4
@@ -686,7 +688,7 @@ class TestEnum(unittest.TestCase):
             )
 
     def test_reversed_iteration_order(self):
-        if six.PY3:
+        if not six.PY2:
             self.assertEqual(
                 list(reversed(self.Season)),
                 [self.Season.WINTER, self.Season.AUTUMN, self.Season.SUMMER,
@@ -698,7 +700,7 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        if six.PY3:
+        if not six.PY2:
             self.assertEqual(
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
@@ -716,7 +718,7 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        if six.PY3:
+        if not six.PY2:
             self.assertEqual(
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
@@ -734,7 +736,7 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        if six.PY3:
+        if not six.PY2:
             self.assertEqual(
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
@@ -752,7 +754,7 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        if six.PY3:
+        if not six.PY2:
             self.assertEqual(
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
@@ -773,7 +775,7 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        if six.PY3:
+        if not six.PY2:
             self.assertEqual(
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
@@ -794,7 +796,7 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        if six.PY3:
+        if not six.PY2:
             self.assertEqual(
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
@@ -812,7 +814,7 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        if six.PY3:
+        if not six.PY2:
             self.assertEqual(
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
@@ -829,7 +831,7 @@ class TestEnum(unittest.TestCase):
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
-        if six.PY3:
+        if not six.PY2:
             self.assertEqual(
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
@@ -1001,67 +1003,68 @@ class TestEnum(unittest.TestCase):
         test_pickle_dump_load(self.assertIs, NEI)
 
     def test_subclasses_with_getnewargs_ex(self):
-        class NamedInt(int):
-            __qualname__ = 'NamedInt'  # needed for pickle protocol 4
+        if not six.PY2:
+            class NamedInt(int):
+                __qualname__ = 'NamedInt'  # needed for pickle protocol 4
 
-            def __new__(cls, *args):
-                _args = args
-                name = args[0]
-                args = args[1:]
-                if len(args) == 0:
-                    raise TypeError("name and value must be specified")
-                self = int.__new__(cls, *args)
-                self._intname = name
-                self._args = _args
-                return self
+                def __new__(cls, *args):
+                    _args = args
+                    name = args[0]
+                    args = args[1:]
+                    if len(args) == 0:
+                        raise TypeError("name and value must be specified")
+                    self = int.__new__(cls, *args)
+                    self._intname = name
+                    self._args = _args
+                    return self
 
-            def __getnewargs_ex__(self):
-                return self._args, {}
+                def __getnewargs_ex__(self):
+                    return self._args, {}
 
-            @property
-            def __name__(self):
-                return self._intname
+                @property
+                def __name__(self):
+                    return self._intname
 
-            def __repr__(self):
-                # repr() is updated to include the name and type info
-                return "{}({!r}, {})".format(type(self).__name__,
-                                             self.__name__,
-                                             int.__repr__(self))
+                def __repr__(self):
+                    # repr() is updated to include the name and type info
+                    return "{}({!r}, {})".format(type(self).__name__,
+                                                 self.__name__,
+                                                 int.__repr__(self))
 
-            def __str__(self):
-                # str() is unchanged, even if it relies on the repr() fallback
-                base = int
-                base_str = base.__str__
-                if base_str.__objclass__ is object:
-                    return base.__repr__(self)
-                return base_str(self)
+                def __str__(self):
+                    # str() is unchanged, even if it relies on the repr() fallback
+                    base = int
+                    base_str = base.__str__
+                    if base_str.__objclass__ is object:
+                        return base.__repr__(self)
+                    return base_str(self)
 
-            # for simplicity, we only define one operator that
-            # propagates expressions
-            def __add__(self, other):
-                temp = int(self) + int(other)
-                if isinstance(self, NamedInt) and isinstance(other, NamedInt):
-                    return NamedInt(
-                        '({0} + {1})'.format(self.__name__, other.__name__),
-                        temp)
-                else:
-                    return temp
+                # for simplicity, we only define one operator that
+                # propagates expressions
+                def __add__(self, other):
+                    temp = int(self) + int(other)
+                    if isinstance(self, NamedInt) and isinstance(other, NamedInt):
+                        return NamedInt(
+                            '({0} + {1})'.format(self.__name__, other.__name__),
+                            temp)
+                    else:
+                        return temp
 
-        class NEI(NamedInt, Enum):
-            __qualname__ = 'NEI'  # needed for pickle protocol 4
-            x = ('the-x', 1)
-            y = ('the-y', 2)
+            class NEI(NamedInt, Enum):
+                __qualname__ = 'NEI'  # needed for pickle protocol 4
+                x = ('the-x', 1)
+                y = ('the-y', 2)
 
-        self.assertIs(NEI.__new__, Enum.__new__)
-        self.assertEqual(repr(NEI.x + NEI.y), "NamedInt('(the-x + the-y)', 3)")
-        globals()['NamedInt'] = NamedInt
-        globals()['NEI'] = NEI
-        NI5 = NamedInt('test', 5)
-        self.assertEqual(NI5, 5)
-        test_pickle_dump_load(self.assertEqual, NI5, 5)
-        self.assertEqual(NEI.y.value, 2)
-        test_pickle_dump_load(self.assertIs, NEI.y)
-        test_pickle_dump_load(self.assertIs, NEI)
+            self.assertIs(NEI.__new__, Enum.__new__)
+            self.assertEqual(repr(NEI.x + NEI.y), "NamedInt('(the-x + the-y)', 3)")
+            globals()['NamedInt'] = NamedInt
+            globals()['NEI'] = NEI
+            NI5 = NamedInt('test', 5)
+            self.assertEqual(NI5, 5)
+            test_pickle_dump_load(self.assertEqual, NI5, 5)
+            self.assertEqual(NEI.y.value, 2)
+            test_pickle_dump_load(self.assertIs, NEI.y)
+            test_pickle_dump_load(self.assertIs, NEI)
 
     def test_subclasses_with_reduce(self):
         class NamedInt(int):
@@ -1127,67 +1130,68 @@ class TestEnum(unittest.TestCase):
         test_pickle_dump_load(self.assertIs, NEI)
 
     def test_subclasses_with_reduce_ex(self):
-        class NamedInt(int):
-            __qualname__ = 'NamedInt'  # needed for pickle protocol 4
+        if not six.PY2:
+            class NamedInt(int):
+                __qualname__ = 'NamedInt'  # needed for pickle protocol 4
 
-            def __new__(cls, *args):
-                _args = args
-                name = args[0]
-                args = args[1:]
-                if len(args) == 0:
-                    raise TypeError("name and value must be specified")
-                self = int.__new__(cls, *args)
-                self._intname = name
-                self._args = _args
-                return self
+                def __new__(cls, *args):
+                    _args = args
+                    name = args[0]
+                    args = args[1:]
+                    if len(args) == 0:
+                        raise TypeError("name and value must be specified")
+                    self = int.__new__(cls, *args)
+                    self._intname = name
+                    self._args = _args
+                    return self
 
-            def __reduce_ex__(self, proto):
-                return self.__class__, self._args
+                def __reduce_ex__(self, proto):
+                    return self.__class__, self._args
 
-            @property
-            def __name__(self):
-                return self._intname
+                @property
+                def __name__(self):
+                    return self._intname
 
-            def __repr__(self):
-                # repr() is updated to include the name and type info
-                return "{}({!r}, {})".format(type(self).__name__,
-                                             self.__name__,
-                                             int.__repr__(self))
+                def __repr__(self):
+                    # repr() is updated to include the name and type info
+                    return "{}({!r}, {})".format(type(self).__name__,
+                                                 self.__name__,
+                                                 int.__repr__(self))
 
-            def __str__(self):
-                # str() is unchanged, even if it relies on the repr() fallback
-                base = int
-                base_str = base.__str__
-                if base_str.__objclass__ is object:
-                    return base.__repr__(self)
-                return base_str(self)
+                def __str__(self):
+                    # str() is unchanged, even if it relies on the repr() fallback
+                    base = int
+                    base_str = base.__str__
+                    if base_str.__objclass__ is object:
+                        return base.__repr__(self)
+                    return base_str(self)
 
-            # for simplicity, we only define one operator that
-            # propagates expressions
-            def __add__(self, other):
-                temp = int(self) + int(other)
-                if isinstance(self, NamedInt) and isinstance(other, NamedInt):
-                    return NamedInt(
-                        '({0} + {1})'.format(self.__name__, other.__name__),
-                        temp)
-                else:
-                    return temp
+                # for simplicity, we only define one operator that
+                # propagates expressions
+                def __add__(self, other):
+                    temp = int(self) + int(other)
+                    if isinstance(self, NamedInt) and isinstance(other, NamedInt):
+                        return NamedInt(
+                            '({0} + {1})'.format(self.__name__, other.__name__),
+                            temp)
+                    else:
+                        return temp
 
-        class NEI(NamedInt, Enum):
-            __qualname__ = 'NEI'  # needed for pickle protocol 4
-            x = ('the-x', 1)
-            y = ('the-y', 2)
+            class NEI(NamedInt, Enum):
+                __qualname__ = 'NEI'  # needed for pickle protocol 4
+                x = ('the-x', 1)
+                y = ('the-y', 2)
 
-        self.assertIs(NEI.__new__, Enum.__new__)
-        self.assertEqual(repr(NEI.x + NEI.y), "NamedInt('(the-x + the-y)', 3)")
-        globals()['NamedInt'] = NamedInt
-        globals()['NEI'] = NEI
-        NI5 = NamedInt('test', 5)
-        self.assertEqual(NI5, 5)
-        test_pickle_dump_load(self.assertEqual, NI5, 5)
-        self.assertEqual(NEI.y.value, 2)
-        test_pickle_dump_load(self.assertIs, NEI.y)
-        test_pickle_dump_load(self.assertIs, NEI)
+            self.assertIs(NEI.__new__, Enum.__new__)
+            self.assertEqual(repr(NEI.x + NEI.y), "NamedInt('(the-x + the-y)', 3)")
+            globals()['NamedInt'] = NamedInt
+            globals()['NEI'] = NEI
+            NI5 = NamedInt('test', 5)
+            self.assertEqual(NI5, 5)
+            test_pickle_dump_load(self.assertEqual, NI5, 5)
+            self.assertEqual(NEI.y.value, 2)
+            test_pickle_dump_load(self.assertIs, NEI.y)
+            test_pickle_dump_load(self.assertIs, NEI)
 
     def test_subclasses_without_direct_pickle_support(self):
         class NamedInt(int):
@@ -1324,7 +1328,7 @@ class TestEnum(unittest.TestCase):
         test_pickle_dump_load(self.assertIs, SomeTuple.first)
 
     def test_duplicate_values_give_unique_enum_items(self):
-        if six.PY3:
+        if not six.PY2:
             # Python2无法保证auto的顺序
             class AutoNumber(Enum):
                 first = ()
@@ -1349,23 +1353,24 @@ class TestEnum(unittest.TestCase):
             self.assertIs(AutoNumber(1), AutoNumber.first)
 
     def test_inherited_new_from_enhanced_enum(self):
-        class AutoNumber(Enum):
-            def __new__(cls):
-                value = len(cls.__members__) + 1
-                obj = object.__new__(cls)
-                obj._value_ = value
-                return obj
+        if not six.PY2:
+            class AutoNumber(Enum):
+                def __new__(cls):
+                    value = len(cls.__members__) + 1
+                    obj = object.__new__(cls)
+                    obj._value_ = value
+                    return obj
 
-            def __int__(self):
-                return int(self._value_)
+                def __int__(self):
+                    return int(self._value_)
 
-        class Color(AutoNumber):
-            red = ()
-            green = ()
-            blue = ()
+            class Color(AutoNumber):
+                red = ()
+                green = ()
+                blue = ()
 
-        self.assertEqual(list(Color), [Color.red, Color.green, Color.blue])
-        self.assertEqual(list(map(int, Color)), [1, 2, 3])
+            self.assertEqual(list(Color), [Color.red, Color.green, Color.blue])
+            self.assertEqual(list(map(int, Color)), [1, 2, 3])
 
     def test_equality(self):
         class AlwaysEqual:
@@ -1549,40 +1554,42 @@ class TestEnum(unittest.TestCase):
         self.assertTrue(Period.week_4 is Period.day_28)
 
     def test_nonhash_value(self):
-        class AutoNumberInAList(Enum):
-            def __new__(cls):
-                value = [len(cls.__members__) + 1]
-                obj = object.__new__(cls)
-                obj._value_ = value
-                return obj
+        if not six.PY2:
+            class AutoNumberInAList(Enum):
+                def __new__(cls):
+                    value = [len(cls.__members__) + 1]
+                    obj = object.__new__(cls)
+                    obj._value_ = value
+                    return obj
 
-        class ColorInAList(AutoNumberInAList):
-            red = ()
-            green = ()
-            blue = ()
+            class ColorInAList(AutoNumberInAList):
+                red = ()
+                green = ()
+                blue = ()
 
-        self.assertEqual(list(ColorInAList), [ColorInAList.red, ColorInAList.green, ColorInAList.blue])
-        for instance, value in zip(ColorInAList, range(3)):
-            value += 1
-            self.assertEqual(instance.value, [value])
-            self.assertIs(ColorInAList([value]), instance)
+            self.assertEqual(list(ColorInAList), [ColorInAList.red, ColorInAList.green, ColorInAList.blue])
+            for instance, value in zip(ColorInAList, range(3)):
+                value += 1
+                self.assertEqual(instance.value, [value])
+                self.assertIs(ColorInAList([value]), instance)
 
     def test_conflicting_types_resolved_in_new(self):
-        class LabelledIntEnum(int, Enum):
-            def __new__(cls, *args):
-                value, label = args
-                obj = int.__new__(cls, value)
-                obj.label = label
-                obj._value_ = value
-                return obj
+        if not six.PY2:
+            class LabelledIntEnum(int, Enum):
+                def __new__(cls, *args):
+                    value, label = args
+                    obj = int.__new__(cls, value)
+                    obj.label = label
+                    obj._value_ = value
+                    return obj
 
-        class LabelledList(LabelledIntEnum):
-            unprocessed = (1, "Unprocessed")
-            payment_complete = (2, "Payment Complete")
+            class LabelledList(LabelledIntEnum):
+                unprocessed = (1, "Unprocessed")
+                payment_complete = (2, "Payment Complete")
 
-        self.assertEqual(list(LabelledList), [LabelledList.unprocessed, LabelledList.payment_complete])
-        self.assertEqual(LabelledList.unprocessed, 1)
-        self.assertEqual(LabelledList(1), LabelledList.unprocessed)
+            self.assertEqual(list(LabelledList), [LabelledList.unprocessed, LabelledList.payment_complete])
+            self.assertEqual(LabelledList.unprocessed, 1)
+            self.assertEqual(LabelledList(1), LabelledList.unprocessed)
 
     def test_missing(self):
         class Color(Enum):
@@ -1619,37 +1626,38 @@ class TestEnum(unittest.TestCase):
             raise Exception('Exception not raised.')
 
     def test_multiple_inherited_mixin(self):
-        class StrEnum(str, Enum):
-            def __new__(cls, *args, **kwargs):
-                for a in args:
-                    if not isinstance(a, str):
-                        raise TypeError("Enumeration '%s' (%s) is not"
-                                        " a string" % (a, type(a).__name__))
-                return str.__new__(cls, *args, **kwargs)
+        if not six.PY2:
+            class StrEnum(str, Enum):
+                def __new__(cls, *args, **kwargs):
+                    for a in args:
+                        if not isinstance(a, str):
+                            raise TypeError("Enumeration '%s' (%s) is not"
+                                            " a string" % (a, type(a).__name__))
+                    return str.__new__(cls, *args, **kwargs)
 
-        @unique
-        class Decision1(StrEnum):
-            REVERT = "REVERT"
-            REVERT_ALL = "REVERT_ALL"
-            RETRY = "RETRY"
+            @unique
+            class Decision1(StrEnum):
+                REVERT = "REVERT"
+                REVERT_ALL = "REVERT_ALL"
+                RETRY = "RETRY"
 
-        class MyEnum(StrEnum):
-            pass
+            class MyEnum(StrEnum):
+                pass
 
-        @unique
-        class Decision2(MyEnum):
-            REVERT = "REVERT"
-            REVERT_ALL = "REVERT_ALL"
-            RETRY = "RETRY"
+            @unique
+            class Decision2(MyEnum):
+                REVERT = "REVERT"
+                REVERT_ALL = "REVERT_ALL"
 
     def test_empty_globals(self):
-        # bpo-35717: sys._getframe(2).f_globals['__name__'] fails with KeyError
-        # when using compile and exec because f_globals is empty
-        code = "from enum import Enum; Enum('Animal', 'ANT BEE CAT DOG')"
-        code = compile(code, "<string>", "exec")
-        global_ns = {}
-        local_ls = {}
-        exec(code, global_ns, local_ls)
+        if not six.PY2:
+            # bpo-35717: sys._getframe(2).f_globals['__name__'] fails with KeyError
+            # when using compile and exec because f_globals is empty
+            code = "from enum import Enum; Enum('Animal', 'ANT BEE CAT DOG')"
+            code = compile(code, "<string>", "exec")
+            global_ns = {}
+            local_ls = {}
+            exec(code, global_ns, local_ls)
 
 
 class TestOrder(unittest.TestCase):
@@ -1662,7 +1670,7 @@ class TestOrder(unittest.TestCase):
             blue = 3
 
     def test_same_members_with_aliases(self):
-        if six.PY3:
+        if not six.PY2:
             class Color(Enum):
                 _order_ = 'red green blue'
                 red = 1
@@ -1676,12 +1684,13 @@ class TestOrder(unittest.TestCase):
         return super(TestOrder, self).assertRaisesRegex(expected_exception, expected_regex, *args, **kwargs)
 
     def test_same_members_wrong_order(self):
-        with self.assertRaisesRegex(TypeError, 'member order does not match _order_'):
-            class Color(Enum):
-                _order_ = 'red green blue'
-                red = 1
-                blue = 3
-                green = 2
+        if not six.PY2:
+            with self.assertRaisesRegex(TypeError, 'member order does not match _order_'):
+                class Color(Enum):
+                    _order_ = 'red green blue'
+                    red = 1
+                    blue = 3
+                    green = 2
 
     def test_order_has_extra_members(self):
         with self.assertRaisesRegex(TypeError, 'member order does not match _order_'):
@@ -1747,7 +1756,7 @@ class TestUnique(unittest.TestCase):
             tres = 4.0
 
     def test_unique_dirty(self):
-        if six.PY3:
+        if not six.PY2:
             with self.assertRaisesRegex(ValueError, 'tres.*one'):
                 @unique
                 class Dirty(Enum):
@@ -1821,7 +1830,7 @@ class TestStdLib(unittest.TestCase):
 
 class MiscTestCase(unittest.TestCase):
     def test__all__(self):
-        if six.PY3:
+        if not six.PY2:
             support.check__all__(self, enum)
 
 

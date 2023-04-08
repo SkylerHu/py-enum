@@ -5,6 +5,9 @@
 增加了python2的支持；
 """
 from __future__ import print_function
+
+import copy
+
 import six
 import sys
 
@@ -251,8 +254,14 @@ class EnumMeta(type):
         if _order_ is not None:
             if isinstance(_order_, str):
                 _order_ = _order_.replace(',', ' ').split()
-            if _order_ != enum_class._member_names_:
-                raise TypeError('member order does not match _order_')
+            if six.PY2:
+                if sorted(_order_) != sorted(enum_class._member_names_):
+                    raise TypeError('member order does not match _order_')
+                # python2直接使用_order_实现排序
+                enum_class._member_names_ = copy.deepcopy(_order_)
+            else:
+                if _order_ != enum_class._member_names_:
+                    raise TypeError('member order does not match _order_')
 
         return enum_class
 
