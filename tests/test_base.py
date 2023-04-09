@@ -83,14 +83,14 @@ except Exception:
     pass
 
 
-def test_pickle_dump_load(assertion, source, target=None):
+def _test_pickle_dump_load(assertion, source, target=None):
     if target is None:
         target = source
     for protocol in range(HIGHEST_PROTOCOL + 1):
         assertion(loads(dumps(source, protocol=protocol)), target)
 
 
-def test_pickle_exception(assertion, exception, obj):
+def _test_pickle_exception(assertion, exception, obj):
     for protocol in range(HIGHEST_PROTOCOL + 1):
         with assertion(exception):
             dumps(obj, protocol=protocol)
@@ -599,32 +599,32 @@ class TestEnum(unittest.TestCase):
     def test_pickle_enum(self):
         if isinstance(Stooges, Exception):
             raise Stooges
-        test_pickle_dump_load(self.assertIs, Stooges.CURLY)
-        test_pickle_dump_load(self.assertIs, Stooges)
+        _test_pickle_dump_load(self.assertIs, Stooges.CURLY)
+        _test_pickle_dump_load(self.assertIs, Stooges)
 
     def test_pickle_int(self):
         if isinstance(IntStooges, Exception):
             raise IntStooges
-        test_pickle_dump_load(self.assertIs, IntStooges.CURLY)
-        test_pickle_dump_load(self.assertIs, IntStooges)
+        _test_pickle_dump_load(self.assertIs, IntStooges.CURLY)
+        _test_pickle_dump_load(self.assertIs, IntStooges)
 
     def test_pickle_float(self):
         if isinstance(FloatStooges, Exception):
             raise FloatStooges
-        test_pickle_dump_load(self.assertIs, FloatStooges.CURLY)
-        test_pickle_dump_load(self.assertIs, FloatStooges)
+        _test_pickle_dump_load(self.assertIs, FloatStooges.CURLY)
+        _test_pickle_dump_load(self.assertIs, FloatStooges)
 
     def test_pickle_enum_function(self):
         if isinstance(Answer, Exception):
             raise Answer
-        test_pickle_dump_load(self.assertIs, Answer.him)
-        test_pickle_dump_load(self.assertIs, Answer)
+        _test_pickle_dump_load(self.assertIs, Answer.him)
+        _test_pickle_dump_load(self.assertIs, Answer)
 
     def test_pickle_enum_function_with_module(self):
         if isinstance(Question, Exception):
             raise Question
-        test_pickle_dump_load(self.assertIs, Question.who)
-        test_pickle_dump_load(self.assertIs, Question)
+        _test_pickle_dump_load(self.assertIs, Question.who)
+        _test_pickle_dump_load(self.assertIs, Question)
 
     def test_enum_function_with_qualname(self):
         if isinstance(Theory, Exception):
@@ -640,7 +640,7 @@ class TestEnum(unittest.TestCase):
 
             self.__class__.NestedEnum = NestedEnum
             self.NestedEnum.__qualname__ = '%s.NestedEnum' % self.__class__.__name__
-            test_pickle_dump_load(self.assertIs, self.NestedEnum.twigs)
+            _test_pickle_dump_load(self.assertIs, self.NestedEnum.twigs)
 
     def test_exploding_pickle(self):
         BadPickle = Enum(
@@ -648,8 +648,8 @@ class TestEnum(unittest.TestCase):
         globals()['BadPickle'] = BadPickle
         # now break BadPickle to test exception raising
         enum._make_class_unpicklable(BadPickle)
-        test_pickle_exception(self.assertRaises, TypeError, BadPickle.dill)
-        test_pickle_exception(self.assertRaises, PicklingError, BadPickle)
+        _test_pickle_exception(self.assertRaises, TypeError, BadPickle.dill)
+        _test_pickle_exception(self.assertRaises, PicklingError, BadPickle)
 
     def test_string_enum(self):
         class SkillLevel(str, Enum):
@@ -849,7 +849,7 @@ class TestEnum(unittest.TestCase):
         self.assertEqual(Name.BDFL, 'Guido van Rossum')
         self.assertTrue(Name.BDFL, Name('Guido van Rossum'))
         self.assertIs(Name.BDFL, getattr(Name, 'BDFL'))
-        test_pickle_dump_load(self.assertIs, Name.BDFL)
+        _test_pickle_dump_load(self.assertIs, Name.BDFL)
 
     def test_extending(self):
         class Color(Enum):
@@ -997,10 +997,10 @@ class TestEnum(unittest.TestCase):
         globals()['NEI'] = NEI
         NI5 = NamedInt('test', 5)
         self.assertEqual(NI5, 5)
-        test_pickle_dump_load(self.assertEqual, NI5, 5)
+        _test_pickle_dump_load(self.assertEqual, NI5, 5)
         self.assertEqual(NEI.y.value, 2)
-        test_pickle_dump_load(self.assertIs, NEI.y)
-        test_pickle_dump_load(self.assertIs, NEI)
+        _test_pickle_dump_load(self.assertIs, NEI.y)
+        _test_pickle_dump_load(self.assertIs, NEI)
 
     def test_subclasses_with_getnewargs_ex(self):
         if not six.PY2:
@@ -1061,10 +1061,10 @@ class TestEnum(unittest.TestCase):
             globals()['NEI'] = NEI
             NI5 = NamedInt('test', 5)
             self.assertEqual(NI5, 5)
-            test_pickle_dump_load(self.assertEqual, NI5, 5)
+            _test_pickle_dump_load(self.assertEqual, NI5, 5)
             self.assertEqual(NEI.y.value, 2)
-            test_pickle_dump_load(self.assertIs, NEI.y)
-            test_pickle_dump_load(self.assertIs, NEI)
+            _test_pickle_dump_load(self.assertIs, NEI.y)
+            _test_pickle_dump_load(self.assertIs, NEI)
 
     def test_subclasses_with_reduce(self):
         class NamedInt(int):
@@ -1124,10 +1124,10 @@ class TestEnum(unittest.TestCase):
         globals()['NEI'] = NEI
         NI5 = NamedInt('test', 5)
         self.assertEqual(NI5, 5)
-        test_pickle_dump_load(self.assertEqual, NI5, 5)
+        _test_pickle_dump_load(self.assertEqual, NI5, 5)
         self.assertEqual(NEI.y.value, 2)
-        test_pickle_dump_load(self.assertIs, NEI.y)
-        test_pickle_dump_load(self.assertIs, NEI)
+        _test_pickle_dump_load(self.assertIs, NEI.y)
+        _test_pickle_dump_load(self.assertIs, NEI)
 
     def test_subclasses_with_reduce_ex(self):
         if not six.PY2:
@@ -1188,10 +1188,10 @@ class TestEnum(unittest.TestCase):
             globals()['NEI'] = NEI
             NI5 = NamedInt('test', 5)
             self.assertEqual(NI5, 5)
-            test_pickle_dump_load(self.assertEqual, NI5, 5)
+            _test_pickle_dump_load(self.assertEqual, NI5, 5)
             self.assertEqual(NEI.y.value, 2)
-            test_pickle_dump_load(self.assertIs, NEI.y)
-            test_pickle_dump_load(self.assertIs, NEI)
+            _test_pickle_dump_load(self.assertIs, NEI.y)
+            _test_pickle_dump_load(self.assertIs, NEI)
 
     def test_subclasses_without_direct_pickle_support(self):
         class NamedInt(int):
@@ -1249,8 +1249,8 @@ class TestEnum(unittest.TestCase):
         NI5 = NamedInt('test', 5)
         self.assertEqual(NI5, 5)
         self.assertEqual(NEI.y.value, 2)
-        test_pickle_exception(self.assertRaises, TypeError, NEI.x)
-        test_pickle_exception(self.assertRaises, PicklingError, NEI)
+        _test_pickle_exception(self.assertRaises, TypeError, NEI.x)
+        _test_pickle_exception(self.assertRaises, PicklingError, NEI)
 
     def test_subclasses_without_direct_pickle_support_using_name(self):
         class NamedInt(int):
@@ -1311,8 +1311,8 @@ class TestEnum(unittest.TestCase):
         NI5 = NamedInt('test', 5)
         self.assertEqual(NI5, 5)
         self.assertEqual(NEI.y.value, 2)
-        test_pickle_dump_load(self.assertIs, NEI.y)
-        test_pickle_dump_load(self.assertIs, NEI)
+        _test_pickle_dump_load(self.assertIs, NEI.y)
+        _test_pickle_dump_load(self.assertIs, NEI)
 
     def test_tuple_subclass(self):
         class SomeTuple(tuple, Enum):
@@ -1325,7 +1325,7 @@ class TestEnum(unittest.TestCase):
         self.assertIsInstance(SomeTuple.second, tuple)
         self.assertEqual(SomeTuple.third, (3, 'for the music'))
         globals()['SomeTuple'] = SomeTuple
-        test_pickle_dump_load(self.assertIs, SomeTuple.first)
+        _test_pickle_dump_load(self.assertIs, SomeTuple.first)
 
     def test_duplicate_values_give_unique_enum_items(self):
         if not six.PY2:

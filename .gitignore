@@ -20,3 +20,10 @@ __pycache__/
 build/
 dist/
 *.egg-info/
+
+# Unit test / coverage reports
+.coverage
+.coverage/
+.pytest_cache/
+.tox/
+.cache
