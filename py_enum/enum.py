@@ -227,10 +227,12 @@ class EnumMeta(type):
             else:
                 # Aliases don't appear in member names (only in __members__).
                 enum_class._member_names_.append(member_name)
+
             # performance boost for any member that would not shadow
             # a DynamicClassAttribute
             if member_name not in dynamic_attributes:
                 setattr(enum_class, member_name, enum_member)
+
             # now add to _member_map_
             enum_class._member_map_[member_name] = enum_member
             try:

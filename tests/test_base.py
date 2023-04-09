@@ -125,23 +125,6 @@ class TestHelpers(unittest.TestCase):
             self.assertFalse(enum._is_dunder(s))
 
 
-# for subclassing tests
-
-
-class classproperty:
-
-    def __init__(self, fget=None, fset=None, fdel=None, doc=None):
-        self.fget = fget
-        self.fset = fset
-        self.fdel = fdel
-        if doc is None and fget is not None:
-            doc = fget.__doc__
-        self.__doc__ = doc
-
-    def __get__(self, instance, ownerclass):
-        return self.fget(ownerclass)
-
-
 # tests
 
 class TestEnum(unittest.TestCase):
