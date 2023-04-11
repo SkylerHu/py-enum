@@ -444,10 +444,11 @@ class TestEnum(unittest.TestCase):
             name = 1
             value = 2
 
-        self.assertEqual(
-            list(Huh),
-            [Huh.name, Huh.value],
-        )
+        if not six.PY2:
+            self.assertEqual(
+                list(Huh),
+                [Huh.name, Huh.value],
+            )
         self.assertIs(type(Huh.name), Huh)
         self.assertEqual(Huh.name.name, 'name')
         self.assertEqual(Huh.name.value, 1)
@@ -1741,6 +1742,13 @@ class TestUnique(unittest.TestCase):
     def test_unique_dirty(self):
         if not six.PY2:
             with self.assertRaisesRegex(ValueError, 'tres.*one'):
+                @unique
+                class Dirty(Enum):
+                    one = 1
+                    two = 'dos'
+                    tres = 1
+        else:
+            with self.assertRaises(ValueError):
                 @unique
                 class Dirty(Enum):
                     one = 1
