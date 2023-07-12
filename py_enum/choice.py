@@ -18,12 +18,12 @@ class _ChoiceType(object):
         self._value_ = args[0]
         self._label_ = self._value_
         self._extra = None
-        if len(args) > 1:
-            self._label_ = args[1]
-            if len(args) == 3:
-                self._extra = args[2]
-            elif len(args) > 3:
-                self._extra = args[2:]
+        # _check_value_type 校验过了，长度一定满足要求
+        self._label_ = args[1]
+        if len(args) == 3:
+            self._extra = args[2]
+        elif len(args) > 3:
+            self._extra = args[2:]
         self._args = _args
         return self
 

@@ -140,6 +140,20 @@ def test_unique_clean():
             BLUE = (1, '蓝色')
 
 
+def test_check_type():
+    with pytest.raises(ValueError):
+        class Color(ChoiceEnum):
+            RED = 1
+
+
+def test_label(colors):
+    assert colors.get_label(colors.RED) == '红色'
+    _color = 0
+    assert _color not in colors
+    assert colors.get_label(_color) is None
+    assert colors.get_label(_color, default_value='red') == 'red'
+
+
 def test_enum_extra():
     class Color(ChoiceEnum):
         RED = (1, '红色')
