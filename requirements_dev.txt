@@ -1,0 +1,13 @@
+pip==20.3.4
+
+# test
+tox==3.28.0
+-r requirements_test.txt
+
+# 测试依赖库，不固定版本，根据python版本而定
+Django
+djangorestframework
+
+# 打包需要
+setuptools==44.1.1
+twine==1.15.0

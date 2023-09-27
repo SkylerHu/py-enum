@@ -92,6 +92,10 @@ class _EnumDict(dict):
     @classmethod
     def py2_init(cls, fields):
         self = cls()
+        # 先处理忽略的属性，py2没有顺序
+        _ignore = fields.get('_ignore_')
+        if _ignore:
+            self['_ignore_'] = _ignore
         for key, value in six.iteritems(fields):
             self[key] = value
         return self

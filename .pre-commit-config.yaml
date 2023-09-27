@@ -3,6 +3,8 @@ exclude: >
         .*/migrations/.*|  # auto-generated code from third party project
         .*settings.*\.py|  # python settings
     )$
+default_language_version:
+    python: python3.6
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.1.0
@@ -28,3 +30,4 @@ repos:
     hooks:
       - id: commitizen
         stages: [commit-msg]
+        additional_dependencies: [ MarkupSafe==2.0.1 ]

@@ -399,16 +399,16 @@ class TestEnum(unittest.TestCase):
                 [Season.SPRING, Season.SUMMER,
                  Season.AUTUMN, Season.WINTER,
                  ])
+            self.assertEqual(Season.FALL.name, 'AUTUMN')
+            self.assertEqual(
+                [k for k, v in Season.__members__.items() if v.name != k],
+                ['FALL', 'ANOTHER_SPRING'],
+            )
         self.assertIs(Season.FALL, Season.AUTUMN)
         self.assertEqual(Season.FALL.value, 3)
         self.assertEqual(Season.AUTUMN.value, 3)
         self.assertIs(Season(3), Season.AUTUMN)
         self.assertIs(Season(1), Season.SPRING)
-        self.assertEqual(Season.FALL.name, 'AUTUMN')
-        self.assertEqual(
-            [k for k, v in Season.__members__.items() if v.name != k],
-            ['FALL', 'ANOTHER_SPRING'],
-        )
 
     def test_duplicate_name(self):
         # Python2属性初始化无法识别多个相同的Key
@@ -1637,7 +1637,7 @@ class TestEnum(unittest.TestCase):
         if not six.PY2:
             # bpo-35717: sys._getframe(2).f_globals['__name__'] fails with KeyError
             # when using compile and exec because f_globals is empty
-            code = "from enum import Enum; Enum('Animal', 'ANT BEE CAT DOG')"
+            code = "from py_enum.enum import Enum; Enum('Animal', 'ANT BEE CAT DOG')"
             code = compile(code, "<string>", "exec")
             global_ns = {}
             local_ls = {}
