@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # coding=utf-8
+import six
 import pytest
 
 from pickle import dumps, loads, HIGHEST_PROTOCOL
-
-import six
 
 from py_enum import ChoiceEnum, unique
 

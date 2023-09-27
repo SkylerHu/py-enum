@@ -11,6 +11,7 @@ DATABASES = {
 INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'rest_framework',
     'tests.app',
 )
 
