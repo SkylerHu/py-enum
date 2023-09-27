@@ -2,7 +2,6 @@ exclude: >
     (?x)^(
         .*/migrations/.*|  # auto-generated code from third party project
         .*settings.*\.py|  # python settings
-        .*/__init__.py
     )$
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks

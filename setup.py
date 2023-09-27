@@ -5,19 +5,26 @@ import re
 from setuptools import setup, find_packages
 
 
-with open('py_enum/__init__.py', 'rb') as f:
-    init_py = f.read().decode('utf-8')
-version = re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)
+def read(file_name):
+    with open(file_name, 'rb') as f:
+        content = f.read().decode('utf-8')
+    return content
+
+
+version = re.search("__version__ = ['\"]([^'\"]+)['\"]", read('py_enum/__init__.py')).group(1)
 
 
 setup(
     name='py-enum',
     version=version,
     url='https://github.com/SkylerHu/py-enum.git',
-    author='skyler',
+    author='SkylerHu',
     author_email='skylerhu@qq.com',
     description='enums for choices fields',
-    packages=find_packages(),
+    long_description=(read('README.md')),
+    long_description_content_type='text/markdown',
+    packages=find_packages(exclude=['tests*', 'tests']),
+    license='MIT Licence',
     include_package_data=True,
     zip_safe=False,
     platforms='any',
