@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # coding=utf-8
+import six
 import pytest
 
 from pickle import dumps, loads, HIGHEST_PROTOCOL
-
-import six
 
 from py_enum import ChoiceEnum, unique
 
@@ -76,6 +75,12 @@ def test_enum_with_value_name_label():
 
     assert Huh.option == 4
     assert member.option == (1, 'label-name')
+
+
+def test_getnewargs(colors):
+    value, label = colors(colors.RED).__getnewargs__()
+    assert value == colors.RED
+    assert label == colors.get_label(value)
 
 
 def test_pickle_enum(status):

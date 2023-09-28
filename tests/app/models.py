@@ -18,3 +18,6 @@ class ColorForm(forms.ModelForm):
     class Meta:
         model = ColorModel
         fields = ('color', )
+
+    color = models.PositiveIntegerField(verbose_name='颜色', choices=Color)
+    status = models.CharField(verbose_name='状态', choices=Status, max_length=20)
