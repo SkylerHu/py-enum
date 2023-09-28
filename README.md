@@ -99,7 +99,7 @@ assert s.is_valid() is False  # 值不在枚举定义范围内，校验不通过
 ```
 
 # 类Enum和unique
-和python3中原生的Enum并不太大区别，具体可以参考[官方原生开发文档](https://docs.python.org/3.6/library/enum.html)
+和python3中原生的Enum并无太大区别，具体可以参考[官方原生开发文档](https://docs.python.org/3.6/library/enum.html)
 
 ## 导入
 
@@ -118,6 +118,8 @@ assert s.is_valid() is False  # 值不在枚举定义范围内，校验不通过
 - 在`Python2`中使用的区别有
   - members无序，属性定义时申明的顺序和直接遍历枚举对象时并不一定一致；需通过`_order_`来定义member的顺序
   - python2没有定义__bool__，所以不能直接用class类或者member来做逻辑判断
-  - 执行 Season.SPRING > Season.SUMMER 不会报错，但结果也不符合预期 （py3执行会raise TypeError, 不允许比较）
+  - 执行 Season.SPRING > Season.SUMMER 不会报错，但结果也不符合预期
+    - py3执行会raise TypeError, 不允许比较
+    - 但是ChoiceEnum是直接取值，可以用来做比较运算
   - 枚举类定义时，无法识别多个相同的Key
   - 在多继承方面会受限
