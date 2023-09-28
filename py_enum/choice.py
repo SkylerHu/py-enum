@@ -33,6 +33,7 @@ class _ChoiceType(object):
 
     @classmethod
     def _check_value_type(cls, value):
+        # 在Enum中有处理，类型一定是tuple
         if not isinstance(value, tuple):
             raise TypeError('value should be a tuple, %r is a %s' % (value, type(value)))
         if len(value) < 2:
@@ -56,10 +57,6 @@ class EnumChoiceMeta(EnumMeta):
 
     def __getattr__(cls, name):
         return super(EnumChoiceMeta, cls).__getattr__(name).value
-
-    # 保持 Color['RED'] / Color(1) 可以获取对象
-    # def __getitem__(cls, name):
-    #     return super(EnumChoiceMeta, cls).__getitem__(name).value
 
     def __iter__(cls):
         return (cls._member_map_[name].option for name in cls._member_names_)

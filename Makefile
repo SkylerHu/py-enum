@@ -46,6 +46,7 @@ clean-pyc: ## remove Python file artifacts
 clean-test: ## remove test and coverage artifacts
 	rm -fr .tox/
 	rm -fr .coverage
+	rm -fr .pytest_cache
 	rm -fr htmlcov/
 
 lint: ## check style with flake8

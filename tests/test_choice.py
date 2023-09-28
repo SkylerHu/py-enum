@@ -77,6 +77,12 @@ def test_enum_with_value_name_label():
     assert member.option == (1, 'label-name')
 
 
+def test_getnewargs(colors):
+    value, label = colors(colors.RED).__getnewargs__()
+    assert value == colors.RED
+    assert label == colors.get_label(value)
+
+
 def test_pickle_enum(status):
     for protocol in range(HIGHEST_PROTOCOL + 1):
         assert loads(dumps(status, protocol=protocol)) is status
