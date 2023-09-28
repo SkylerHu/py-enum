@@ -10,7 +10,7 @@ A python enum module for django choices fields.
 
 	pip install py-enum
 
-变更记录ChangeLog[详见](./docs/CHANGELOG-1.x.md)
+可查看版本变更记录[ChangeLog](./docs/CHANGELOG-1.x.md)
 
 # 类ChoiceEnum
 集成自改造后的Enum对象，用于创建枚举型的基类。
