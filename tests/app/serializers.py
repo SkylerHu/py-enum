@@ -14,13 +14,6 @@ class ColorSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-class ColorSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = ColorModel
-
-
 class ApiSerializer(serializers.BaseSerializer):
 
     color = serializers.ChoiceField(help_text='选择颜色', choices=Color)
-

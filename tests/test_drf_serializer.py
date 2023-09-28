@@ -3,6 +3,7 @@
 import six
 import pytest
 
+from tests.app.models import ColorModel
 from tests.app.serializers import ColorSerializer
 
 
@@ -10,6 +11,8 @@ from tests.app.serializers import ColorSerializer
 def test_validate(status):
     s = ColorSerializer(data={'status': status.CLOSED})
     assert s.is_valid() is True
+    instance = s.save()
+    assert isinstance(instance, ColorModel)
 
     _status = 'no'
     assert _status not in status

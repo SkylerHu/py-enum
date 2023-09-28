@@ -51,4 +51,4 @@
   - 需要本地`~/.pypirc`配置用户名密码
 
 # TODO
-接入`tox-travis`实现自动化发版
+- 接入`tox-travis`实现自动化发版
