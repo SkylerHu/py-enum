@@ -6,12 +6,16 @@ from setuptools import setup, find_packages
 
 
 def read(file_name):
-    with open(file_name, 'rb') as f:
-        content = f.read().decode('utf-8')
+    with open(file_name, 'r') as f:
+        content = f.read()
     return content
 
 
 version = re.search("__version__ = ['\"]([^'\"]+)['\"]", read('py_enum/__init__.py')).group(1)
+
+read_me = read('README.md')
+# 替换文档的相对路径为绝对路径地址
+read_me = read_me.replace('(./docs/', '(https://github.com/SkylerHu/py-enum/blob/master/docs/')
 
 
 setup(
@@ -21,7 +25,7 @@ setup(
     author='SkylerHu',
     author_email='skylerhu@qq.com',
     description='enums for choices fields',
-    long_description=(read('README.md')),
+    long_description=read_me,
     long_description_content_type='text/markdown',
     packages=find_packages(exclude=['tests*', 'tests']),
     license='MIT Licence',

@@ -65,13 +65,13 @@ coverage: ## check code coverage quickly with the default Python
 	${PYTHON} -m coverage html
 	$(BROWSER) .coverage/htmlcov/index.html
 
-release: clean ## package and upload a release
+release: clean-build ## package and upload a release
 	python setup.py sdist upload -r pypi
 
-dist: clean ## builds source
+dist: clean-build ## builds source
 	${PYTHON} setup.py sdist
 	ls -l dist
 	${PYTHON} -m twine check dist/*.tar.gz
 
-install: clean ## install the package to the active Python's site-packages
+install: clean-build ## install the package to the active Python's site-packages
 	${PYTHON} setup.py install

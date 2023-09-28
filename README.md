@@ -4,13 +4,13 @@ A python enum module for django choices fields.
 ## 前言
 通过改造python3中的enum.py而来，主要变更有：
 - 在支持python3的同时，增加了对python2的支持
-- Django中choice选项直接使用枚举对象
+- Django中`choices`选项直接使用枚举对象
 
 ## 安装
 
 	pip install py-enum
 
-变更记录ChangeLog[详见](https://github.com/SkylerHu/py-enum/blob/master/docs/CHANGELOG-1.x.md)
+变更记录ChangeLog[详见](./docs/CHANGELOG-1.x.md)
 
 # 类ChoiceEnum
 集成自改造后的Enum对象，用于创建枚举型的基类。
