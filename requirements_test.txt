@@ -1,0 +1,4 @@
+# test 不限制版本，不同python版本就安装最高版本
+pytest
+pytest-cov
+pytest-django
