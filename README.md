@@ -1,5 +1,5 @@
 # py-enum
-A python enum module for django choices fields.
+A python enum module for python2.7 and django choices fields.
 
 ## 前言
 通过改造python3中的enum.py而来，主要变更有：
