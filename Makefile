@@ -66,7 +66,7 @@ coverage: ## check code coverage quickly with the default Python
 	$(BROWSER) .coverage/htmlcov/index.html
 
 release: clean-build ## package and upload a release
-	python setup.py sdist upload -r pypi
+	${PYTHON} setup.py sdist upload -r pypi
 
 dist: clean-build ## builds source
 	${PYTHON} setup.py sdist

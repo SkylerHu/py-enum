@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # coding=utf-8
 import six
+import json
 import pytest
+import argparse
 
 from pickle import dumps, loads, HIGHEST_PROTOCOL
 
@@ -113,6 +115,7 @@ def test_order_members(colors):
             RED = (1, '红色')
             GREEN = (2, '绿色')
             BLUE = (3, '蓝色')
+
         _colors = Color
     else:
         with pytest.raises(TypeError):
@@ -176,3 +179,40 @@ def test_enum_extra():
     assert Color.get_extra(Color.BLACK)['value'] == 'grey'
     assert Color.get_extra(Color.WHITE) == (1, 2)
     assert Color.get_extra(Color.YELLOW) == ('first', 'second')
+
+
+def test_to_js_enum():
+    class Color(ChoiceEnum):
+        _order_ = 'RED GREEN BLUE'
+        RED = (1, '红色')
+        GREEN = (2, '绿色')
+        BLUE = (3, '蓝色', {'value': 'blue'})
+
+    items = Color.to_js_enum()
+    assert len(items) == len(Color)
+    expect_output = [
+        {"key": "RED", "value": 1, "label": "红色"},
+        {"key": "GREEN", "value": 2, "label": "绿色"},
+        {"key": "BLUE", "value": 3, "label": "蓝色", "extra": {"value": "blue"}}
+    ]
+    assert items == expect_output
+    assert json.dumps(items) == json.dumps(expect_output)
+
+
+def test_use_in_argparse(colors):
+    parser = argparse.ArgumentParser(description='test ChoiceEnum use in argparse.')
+    parser.add_argument('--color', type=int, choices=colors, required=True)
+
+    with pytest.raises(SystemExit):
+        parser.parse_args(['--color'])
+
+    test_c = -2
+    assert test_c not in colors
+    with pytest.raises(SystemExit):
+        parser.parse_args(['--color', str(test_c)])
+
+    test_c = 1
+    assert test_c == colors.RED
+    args = parser.parse_args(['--color', str(test_c)])
+    assert args.color is colors.RED
+    assert args.color == test_c

@@ -7,10 +7,11 @@
   - virtualenv --python=python2 .env
   - pyvenv3 .env
   - python3 -m venv .env
-- `pip install -U -r requirements_test.txt`
+- `pip install -U -r requirements_dev.txt`
 - 系统安装`brew install pre-commit` 或者 `pip install pre-commit`
   - brew安装`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"`
   - 在项目更目录下执行`pre-commit install --hook-type pre-commit --hook-type commit-msg`
+- 可通过`pip install -e ./`编辑模式安装用于边开发边测试使用
 
 # 项目部分结构说明
 - `pytest.ini` 测试脚本的配置
@@ -46,9 +47,9 @@
 - 删除本地构建缓存目录：`py_enum.egg-info`和`dist`
 - 执行打包 `python setup.py sdist`
 - 检查生成的文件是否符合pypi的要求 `twine check dist/py-enum-*.tar.gz`
-- 上传 `twine upload dist/py-enum-xxx.tar.gz`
-- 或者直接打包上传 `python setup.py sdist upload -r pypi`
+- 上传 `twine upload -r pypi dist/py-enum-xxx.tar.gz`
   - 需要本地`~/.pypirc`配置用户名密码
+- ~~或者直接打包上传 `python setup.py sdist upload -r pypi` (已废弃)~~
 
 # TODO
 - 接入`tox-travis`实现自动化发版

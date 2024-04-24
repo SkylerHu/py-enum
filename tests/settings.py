@@ -8,6 +8,8 @@ DATABASES = {
     "default": dict(ENGINE='django.db.backends.sqlite3', NAME=':memory:')
 }
 
+USE_TZ = "Asia/Shanghai"
+
 INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
