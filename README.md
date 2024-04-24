@@ -17,7 +17,7 @@ A python enum module for django choices fields.
 
 ## 使用
 
-```
+```python
 # 导入
 from py_enum import ChoiceEnum, unique
 
@@ -41,6 +41,7 @@ class Status(ChoiceEnum):
 - get_label方法
 - get_extra方法
 - `直接遍历枚举类`，这是能够作为Choices Enum的关键
+
 ```
 print(Color.RED)  # 1
 type(Color.RED)  # <enum 'Color'>
@@ -57,7 +58,18 @@ for value, label in Color:
 # 1, '红色'
 # 2, '绿色'
 # 3, '蓝色'
+
+Color.to_js_enum()
+# 输出dict数据，可以通过接口序列化后给前端使用，结合js-enumerate前端枚举库
+"""
+[
+    {"key": "RED", "value": 1, "label": "红色"},
+    {"key": "GREEN", "value": 2, "label": "绿色"},
+    {"key": "BLUE", "value": 3, "label": "蓝色", "extra": {"value": "blue"}}
+]
+"""
 ```
+
 ## 枚举对象实例化
 ```
 member = Color(Color.RED)  # 或者 Color(1)
@@ -68,6 +80,16 @@ member.option == (1, '红色')  # true
 member.extra == None  # true，因为没有定义
 # 以上几个属性无法修改，直接赋值会抛出AttributeError异常
 member.value in Color  # true
+```
+
+## 在Python argparse中使用
+```
+import argparse
+
+parser = argparse.ArgumentParser(description='test ChoiceEnum use in argparse.')
+parser.add_argument('--color', type=int, choices=Color, required=True)
+args = parser.parse_args(['--color', str(Color.RED)])
+# args.color == Color.RED
 ```
 
 ## 在Django中使用
@@ -82,6 +104,7 @@ assert instance.color == colors.RED
 instance.color = colors.BLUE
 instance.save()
 ```
+
 ## 在DRF中使用
 ```
 from rest_framework import serializers
@@ -112,10 +135,8 @@ assert s.is_valid() is False  # 值不在枚举定义范围内，校验不通过
         AUTUMN = 3
         WINTER = 4
 
-## 对比
-- 和`Python3`原生enum.py对比
-  - 仅保留了`Enum`类和`unique`方法
-- 在`Python2`中使用的区别有
+# 对比
+- `Enum`可以在`Python2`中使用，但需要注意的是：
   - members无序，属性定义时申明的顺序和直接遍历枚举对象时并不一定一致；需通过`_order_`来定义member的顺序
   - python2没有定义__bool__，所以不能直接用class类或者member来做逻辑判断
   - 执行 Season.SPRING > Season.SUMMER 不会报错，但结果也不符合预期
@@ -123,3 +144,8 @@ assert s.is_valid() is False  # 值不在枚举定义范围内，校验不通过
     - 但是ChoiceEnum是直接取值，可以用来做比较运算
   - 枚举类定义时，无法识别多个相同的Key
   - 在多继承方面会受限
+- `Enum`和Python3原生enum.py对比，保留了`Enum`类和`unique`方法
+- `ChoiceEnum`和Django的 models.Choices 的优势在于低版本Django也能使用，且普通Python项目脚本也能使用
+- 新增了额外的特性
+  - 额外多出了`ChoiceEnum.extra`的用法，对不同枚举成员做映射配置相关场景可以使用
+  - 增加方法`ChoiceEnum.to_js_enum`返回数组数据，可以用于前端枚举库[js-enumerate](https://github.com/SkylerHu/js-enum)初始化使用

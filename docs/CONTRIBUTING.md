@@ -7,10 +7,11 @@
   - virtualenv --python=python2 .env
   - pyvenv3 .env
   - python3 -m venv .env
-- `pip install -U -r requirements_test.txt`
+- `pip install -U -r requirements_dev.txt`
 - 系统安装`brew install pre-commit` 或者 `pip install pre-commit`
   - brew安装`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"`
   - 在项目更目录下执行`pre-commit install --hook-type pre-commit --hook-type commit-msg`
+- 可通过`pip install -e ./`编辑模式安装用于边开发边测试使用
 
 # 项目部分结构说明
 - `pytest.ini` 测试脚本的配置

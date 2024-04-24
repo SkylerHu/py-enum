@@ -89,3 +89,19 @@ class ChoiceEnum(six.with_metaclass(EnumChoiceMeta, _ChoiceType, Enum)):
     @classmethod
     def get_extra(cls, key):
         return cls._value2member_map_[key]._extra
+
+    @classmethod
+    def to_js_enum(cls):
+        """js-enumerate 前端枚举lib需要的数据结构"""
+        arr = []
+        for key in cls._member_names_:
+            member = cls[key]
+            item = {
+                'key': key,
+                'value': member._value_,
+                'label': member._label_,
+            }
+            if member._extra is not None:
+                item['extra'] = member._extra
+            arr.append(item)
+        return arr
