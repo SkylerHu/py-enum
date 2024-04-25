@@ -1,21 +1,21 @@
 # py-enum
 A python enum module for python2.7 and django choices fields.
 
-## 前言
-通过改造python3中的enum.py而来，主要变更有：
-- 在支持python3的同时，增加了对python2的支持
-- Django中`choices`选项直接使用枚举对象
+通过改造python3中的enum.py而来，增加对python2的支持，并新增类`ChoiceEnum`用于以下场景：
+- argparse使用 `add_argument` 的参数 `choices`
+- Django中 `models.CharField` 的参数 `choices`
+- Django REST framework `ChoiceField` 的参数 `choices`
 
-## 安装
+
+## 1. 安装
 
 	pip install py-enum
 
 可查看版本变更记录[ChangeLog](./docs/CHANGELOG-1.x.md)
 
-# 类ChoiceEnum
-集成自改造后的Enum对象，用于创建枚举型的基类。
+## 2. 使用(Usage)
 
-## 使用
+### 2.1 用ChoiceEnum定义枚举
 
 ```python
 # 导入
@@ -36,13 +36,13 @@ class Status(ChoiceEnum):
 ```
 定义如上，按照`Key = (value, label, extra)`的形式进行定义，value定义的值；label是对值的描述；第三个参数是extra，额外信息，可以任意类型。
 
-## 基础用法
+### 2.2 基础用法
 - `直接根据Key访问value值`，而并不是一个tuple，正是和原生Enum的区别
 - get_label方法
 - get_extra方法
 - `直接遍历枚举类`，这是能够作为Choices Enum的关键
 
-```
+```python
 print(Color.RED)  # 1
 type(Color.RED)  # <enum 'Color'>
 len(colors) == 3  # true
@@ -70,8 +70,8 @@ Color.to_js_enum()
 """
 ```
 
-## 枚举对象实例化
-```
+### 2.3 枚举对象实例化
+```python
 member = Color(Color.RED)  # 或者 Color(1)
 member.value == 1  # true
 member.name == 'RED'  # true
@@ -82,8 +82,8 @@ member.extra == None  # true，因为没有定义
 member.value in Color  # true
 ```
 
-## 在Python argparse中使用
-```
+### 2.4 在Python argparse中使用
+```python
 import argparse
 
 parser = argparse.ArgumentParser(description='test ChoiceEnum use in argparse.')
@@ -92,8 +92,8 @@ args = parser.parse_args(['--color', str(Color.RED)])
 # args.color == Color.RED
 ```
 
-## 在Django中使用
-```
+### 2.5 在Django中使用
+```python
 from django.db import models
 
 class ColorModel(models.Model):
@@ -105,8 +105,8 @@ instance.color = colors.BLUE
 instance.save()
 ```
 
-## 在DRF中使用
-```
+### 2.6 在DRF中使用
+```python
 from rest_framework import serializers
 
 class ColorSerializer(serializers.Serializer):
@@ -121,21 +121,21 @@ s = ColorSerializer(data={'status': 0})
 assert s.is_valid() is False  # 值不在枚举定义范围内，校验不通过
 ```
 
-# 类Enum和unique
+### 2.7 类Enum和unique
 和python3中原生的Enum并无太大区别，具体可以参考[官方原生开发文档](https://docs.python.org/3.6/library/enum.html)
 
-## 导入
+```python
+from py_enum import Enum, unique
 
-    from py_enum import Enum unique
+@unique
+class Season(Enum):
+    SPRING = 1
+    SUMMER = 2
+    AUTUMN = 3
+    WINTER = 4
+```
 
-    @unique
-    class Season(Enum):
-        SPRING = 1
-        SUMMER = 2
-        AUTUMN = 3
-        WINTER = 4
-
-# 对比
+## 3. 对比
 - `Enum`可以在`Python2`中使用，但需要注意的是：
   - members无序，属性定义时申明的顺序和直接遍历枚举对象时并不一定一致；需通过`_order_`来定义member的顺序
   - python2没有定义__bool__，所以不能直接用class类或者member来做逻辑判断
@@ -148,4 +148,4 @@ assert s.is_valid() is False  # 值不在枚举定义范围内，校验不通过
 - `ChoiceEnum`和Django的 models.Choices 的优势在于低版本Django也能使用，且普通Python项目脚本也能使用
 - 新增了额外的特性
   - 额外多出了`ChoiceEnum.extra`的用法，对不同枚举成员做映射配置相关场景可以使用
-  - 增加方法`ChoiceEnum.to_js_enum`返回数组数据，可以用于前端枚举库[js-enumerate](https://github.com/SkylerHu/js-enum)初始化使用
+  - 增加方法`ChoiceEnum.to_js_enum`返回数组数据，可以用于前端枚举库 [js-enumerate](https://github.com/SkylerHu/js-enum) 初始化使用
