@@ -96,8 +96,9 @@ def test_pickle_enum(status):
 
 def test_enum_member(colors):
     assert colors['RED'].value == 1
-    assert colors(1).value == 1
-    assert colors(1) is colors['RED']
+    member = colors(1)
+    assert member.value == 1
+    assert member is colors['RED']
 
 
 def test_no_such_enum_member(colors):
@@ -107,17 +108,10 @@ def test_no_such_enum_member(colors):
         colors['GREY']
 
 
-def test_order_members(colors):
+def test_order_members(colors, order_colors):
     _colors = colors
     if six.PY2:
-        # python2需要定义排序 _order_
-        class Color(ChoiceEnum):
-            _order_ = 'RED GREEN BLUE'
-            RED = (1, '红色')
-            GREEN = (2, '绿色')
-            BLUE = (3, '蓝色')
-
-        _colors = Color
+        _colors = order_colors
     else:
         with pytest.raises(TypeError):
             # python3定义了排序，属性顺序必须一致
@@ -182,15 +176,9 @@ def test_enum_extra():
     assert Color.get_extra(Color.YELLOW) == ('first', 'second')
 
 
-def test_to_js_enum():
-    class Color(ChoiceEnum):
-        _order_ = 'RED GREEN BLUE'
-        RED = (1, '红色')
-        GREEN = (2, '绿色')
-        BLUE = (3, '蓝色', {'value': 'blue'})
-
-    items = Color.to_js_enum()
-    assert len(items) == len(Color)
+def test_to_js_enum(order_colors):
+    items = order_colors.to_js_enum()
+    assert len(items) == len(order_colors)
     expect_output = [
         {"key": "RED", "value": 1, "label": "红色"},
         {"key": "GREEN", "value": 2, "label": "绿色"},
@@ -219,7 +207,10 @@ def test_use_in_argparse(colors):
     assert args.color == test_c
 
 
-def test_cls_property(colors):
-    assert colors.values == [1, 2, 3]
-    assert colors.labels == ['红色', '绿色', '蓝色']
-    assert colors.choices == [(1, '红色'), (2, '绿色'), (3, '蓝色')]
+def test_cls_property(colors, order_colors):
+    _colors = colors
+    if six.PY2:
+        _colors = order_colors
+    assert _colors.values == [1, 2, 3]
+    assert _colors.labels == ['红色', '绿色', '蓝色']
+    assert _colors.choices == [(1, '红色'), (2, '绿色'), (3, '蓝色')]

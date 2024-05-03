@@ -10,6 +10,12 @@ def colors():
 
 
 @pytest.fixture
+def order_colors():
+    from tests.app.enums import OrderColor
+    return OrderColor
+
+
+@pytest.fixture
 def status():
     from tests.app.enums import Status
     return Status
