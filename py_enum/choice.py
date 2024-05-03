@@ -45,7 +45,10 @@ class _ChoiceType(object):
 class EnumChoiceMeta(EnumMeta):
 
     def __contains__(cls, value):
-        return value in cls._value2member_map_
+        if not isinstance(value, Enum):
+            # Allow non-enums to match against member values.
+            return value in cls._value2member_map_
+        return super(EnumChoiceMeta, cls).__contains__(value)
 
     def __getattribute__(cls, name):
         attr = super(EnumChoiceMeta, cls).__getattribute__(name)
@@ -60,6 +63,18 @@ class EnumChoiceMeta(EnumMeta):
 
     def __iter__(cls):
         return (cls._member_map_[name].option for name in cls._member_names_)
+
+    @property
+    def choices(cls):
+        return list(cls)
+
+    @property
+    def values(cls):
+        return [value for value, _ in cls]
+
+    @property
+    def labels(cls):
+        return [label for _, label in cls]
 
 
 class ChoiceEnum(six.with_metaclass(EnumChoiceMeta, _ChoiceType, Enum)):

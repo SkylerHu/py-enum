@@ -59,6 +59,7 @@ def test_contains(colors, status):
     assert colors.RED in colors
     assert 0 not in colors
     assert status.CLOSED in status
+    assert colors(colors.RED) in colors
 
 
 def test_enum_with_value_name_label():
@@ -216,3 +217,9 @@ def test_use_in_argparse(colors):
     args = parser.parse_args(['--color', str(test_c)])
     assert args.color is colors.RED
     assert args.color == test_c
+
+
+def test_cls_property(colors):
+    assert colors.values == [1, 2, 3]
+    assert colors.labels == ['红色', '绿色', '蓝色']
+    assert colors.choices == [(1, '红色'), (2, '绿色'), (3, '蓝色')]
