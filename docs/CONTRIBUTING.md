@@ -44,10 +44,10 @@
 
 # 打包发版
 （以下命令都定义在了Makefile中了）
-- 删除本地构建缓存目录：`py_enum.egg-info`和`dist`
-- 执行打包 `python setup.py sdist`
-- 检查生成的文件是否符合pypi的要求 `twine check dist/py-enum-*.tar.gz`
-- 上传 `twine upload -r pypi dist/py-enum-xxx.tar.gz`
+- `make clean-build` 删除本地构建缓存目录：`py_enum.egg-info`和`dist`
+- `python setup.py sdist bdist_wheel --universal` 执行打包
+- `twine check dist/*` 检查生成的文件是否符合pypi的要求
+- `twine upload -r pypi dist/py*` 上传包
   - 需要本地`~/.pypirc`配置用户名密码
 - ~~或者直接打包上传 `python setup.py sdist upload -r pypi` (已废弃)~~
 

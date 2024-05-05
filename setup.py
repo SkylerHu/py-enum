@@ -25,6 +25,7 @@ setup(
     author='SkylerHu',
     author_email='skylerhu@qq.com',
     description='enums for choices fields',
+    keywords=['python', 'enum', 'ChoiceEnum', 'enumerate'],
     long_description=read_me,
     long_description_content_type='text/markdown',
     packages=find_packages(exclude=['tests*', 'tests']),
@@ -40,6 +41,7 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
-
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
     ],
 )
