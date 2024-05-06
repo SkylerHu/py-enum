@@ -29,12 +29,12 @@ def test_save_and_filter(colors):
 
 @pytest.mark.django_db
 def test_check_fail(colors):
-    form = ColorForm(data={'color': colors.BLUE})
+    form = ColorForm(data={"color": colors.BLUE})
     assert form.is_valid() is True
 
     _color = -1
     assert _color not in colors
 
-    form = ColorForm(data={'color': _color})
+    form = ColorForm(data={"color": _color})
     assert form.is_valid() is False
-    assert form.errors.get('color')[0].startswith('Select a valid choice')
+    assert form.errors.get("color")[0].startswith("Select a valid choice")

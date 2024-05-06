@@ -18,6 +18,7 @@ class DynamicClassAttribute(object):
     attributes on the class with the same name (see Enum for an example).
 
     """
+
     def __init__(self, fget=None, fset=None, fdel=None, doc=None):
         self.fget = fget
         self.fset = fset
@@ -26,7 +27,7 @@ class DynamicClassAttribute(object):
         self.__doc__ = doc or fget.__doc__
         self.overwrite_doc = doc is None
         # support for abstract methods
-        self.__isabstractmethod__ = bool(getattr(fget, '__isabstractmethod__', False))
+        self.__isabstractmethod__ = bool(getattr(fget, "__isabstractmethod__", False))
 
     def __get__(self, instance, ownerclass=None):
         if instance is None:

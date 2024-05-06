@@ -6,7 +6,9 @@ from .enum import Enum, EnumMeta
 from .utils import DynamicClassAttribute
 
 
-__all__ = ['ChoiceEnum', ]
+__all__ = [
+    "ChoiceEnum",
+]
 
 
 class _ChoiceType(object):
@@ -28,18 +30,24 @@ class _ChoiceType(object):
         return self
 
     def __getnewargs__(self):
-        """ 支持pickle"""
+        """支持pickle"""
         return self._args
 
     @classmethod
     def _check_value_type(cls, value):
         # 在Enum中有处理，类型一定是tuple
         if not isinstance(value, tuple):
-            raise TypeError('value should be a tuple, %r is a %s' % (value, type(value)))
+            raise TypeError("value should be a tuple, %r is a %s" % (value, type(value)))
         if len(value) < 2:
-            raise ValueError('value should be a tuple, len(%r) = %d , len should be >= 2' % (value, len(value), ))
+            raise ValueError(
+                "value should be a tuple, len(%r) = %d , len should be >= 2"
+                % (
+                    value,
+                    len(value),
+                )
+            )
         if not isinstance(value[1], six.string_types):
-            raise TypeError('value[1] %r use for label, should be a string' % (value[1], ))
+            raise TypeError("value[1] %r use for label, should be a string" % (value[1],))
 
 
 class EnumChoiceMeta(EnumMeta):
@@ -52,7 +60,7 @@ class EnumChoiceMeta(EnumMeta):
 
     def __getattribute__(cls, name):
         attr = super(EnumChoiceMeta, cls).__getattribute__(name)
-        if name == '_member_names_':
+        if name == "_member_names_":
             pass
         elif name in cls._member_names_:
             attr = attr.value
@@ -112,11 +120,11 @@ class ChoiceEnum(six.with_metaclass(EnumChoiceMeta, _ChoiceType, Enum)):
         for key in cls._member_names_:
             member = cls[key]
             item = {
-                'key': key,
-                'value': member._value_,
-                'label': member._label_,
+                "key": key,
+                "value": member._value_,
+                "label": member._label_,
             }
             if member._extra is not None:
-                item['extra'] = member._extra
+                item["extra"] = member._extra
             arr.append(item)
         return arr

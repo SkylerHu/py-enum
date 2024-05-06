@@ -24,61 +24,71 @@ except ImportError:
 
 # for pickle tests
 try:
+
     class Stooges(Enum):
         LARRY = 1
         CURLY = 2
         MOE = 3
+
 except Exception as exc:
     Stooges = exc
 
 try:
+
     class IntStooges(int, Enum):
         LARRY = 1
         CURLY = 2
         MOE = 3
+
 except Exception as exc:
     IntStooges = exc
 
 try:
+
     class FloatStooges(float, Enum):
         LARRY = 1.39
         CURLY = 2.72
         MOE = 3.142596
+
 except Exception as exc:
     FloatStooges = exc
 
 # for pickle test and subclass tests
 try:
+
     class StrEnum(str, Enum):
-        'accepts only string values'
+        "accepts only string values"
 
     class Name(StrEnum):
-        BDFL = 'Guido van Rossum'
-        FLUFL = 'Barry Warsaw'
+        BDFL = "Guido van Rossum"
+        FLUFL = "Barry Warsaw"
+
 except Exception as exc:
     Name = exc
 
 try:
-    Question = Enum('Question', 'who what when where why', module=__name__)
+    Question = Enum("Question", "who what when where why", module=__name__)
 except Exception as exc:
     Question = exc
 
 try:
-    Answer = Enum('Answer', 'him this then there because')
+    Answer = Enum("Answer", "him this then there because")
 except Exception as exc:
     Answer = exc
 
 try:
-    Theory = Enum('Theory', 'rule law supposition', qualname='spanish_inquisition')
+    Theory = Enum("Theory", "rule law supposition", qualname="spanish_inquisition")
 except Exception as exc:
     Theory = exc
 
 # for doctests
 try:
+
     class Fruit(Enum):
         TOMATO = 1
         BANANA = 2
         CHERRY = 3
+
 except Exception:
     pass
 
@@ -103,29 +113,56 @@ class TestHelpers(unittest.TestCase):
         class foo:
             pass
 
-        for attr in ('__get__', '__set__', '__delete__'):
+        for attr in ("__get__", "__set__", "__delete__"):
             obj = foo()
             self.assertFalse(enum._is_descriptor(obj))
             setattr(obj, attr, 1)
             self.assertTrue(enum._is_descriptor(obj))
 
     def test_is_sunder(self):
-        for s in ('_a_', '_aa_'):
+        for s in ("_a_", "_aa_"):
             self.assertTrue(enum._is_sunder(s))
 
-        for s in ('a', 'a_', '_a', '__a', 'a__', '__a__', '_a__', '__a_', '_',
-                  '__', '___', '____', '_____',):
+        for s in (
+            "a",
+            "a_",
+            "_a",
+            "__a",
+            "a__",
+            "__a__",
+            "_a__",
+            "__a_",
+            "_",
+            "__",
+            "___",
+            "____",
+            "_____",
+        ):
             self.assertFalse(enum._is_sunder(s))
 
     def test_is_dunder(self):
-        for s in ('__a__', '__aa__'):
+        for s in ("__a__", "__aa__"):
             self.assertTrue(enum._is_dunder(s))
-        for s in ('a', 'a_', '_a', '__a', 'a__', '_a_', '_a__', '__a_', '_',
-                  '__', '___', '____', '_____',):
+        for s in (
+            "a",
+            "a_",
+            "_a",
+            "__a",
+            "a__",
+            "_a_",
+            "_a__",
+            "__a_",
+            "_",
+            "__",
+            "___",
+            "____",
+            "_____",
+        ):
             self.assertFalse(enum._is_dunder(s))
 
 
 # tests
+
 
 class TestEnum(unittest.TestCase):
 
@@ -146,10 +183,10 @@ class TestEnum(unittest.TestCase):
         self.Konstants = Konstants
 
         class Directional(str, Enum):
-            EAST = 'east'
-            WEST = 'west'
-            NORTH = 'north'
-            SOUTH = 'south'
+            EAST = "east"
+            WEST = "west"
+            NORTH = "north"
+            SOUTH = "south"
 
         self.Directional = Directional
 
@@ -165,31 +202,31 @@ class TestEnum(unittest.TestCase):
         Season = self.Season
         self.assertEqual(
             set(dir(Season)),
-            {'__class__', '__doc__', '__members__', '__module__', 'SPRING', 'SUMMER', 'AUTUMN', 'WINTER'},
+            {"__class__", "__doc__", "__members__", "__module__", "SPRING", "SUMMER", "AUTUMN", "WINTER"},
         )
 
     def test_dir_on_item(self):
         Season = self.Season
         self.assertEqual(
             set(dir(Season.WINTER)),
-            {'__class__', '__doc__', '__module__', 'name', 'value'},
+            {"__class__", "__doc__", "__module__", "name", "value"},
         )
 
     def test_dir_with_added_behavior(self):
         class Test(Enum):
-            this = 'that'
-            these = 'those'
+            this = "that"
+            these = "those"
 
             def wowser(self):
                 return "Wowser! I'm %s!" % self.name
 
         self.assertEqual(
             set(dir(Test)),
-            {'__class__', '__doc__', '__members__', '__module__', 'this', 'these'},
+            {"__class__", "__doc__", "__members__", "__module__", "this", "these"},
         )
         self.assertEqual(
             set(dir(Test.this)),
-            {'__class__', '__doc__', '__module__', 'name', 'value', 'wowser'},
+            {"__class__", "__doc__", "__module__", "name", "value", "wowser"},
         )
 
     def test_dir_on_sub_with_behavior_on_super(self):
@@ -203,7 +240,7 @@ class TestEnum(unittest.TestCase):
 
         self.assertEqual(
             set(dir(SubEnum.sample)),
-            {'__class__', '__doc__', '__module__', 'name', 'value', 'invisible'},
+            {"__class__", "__doc__", "__module__", "name", "value", "invisible"},
         )
 
     def test_enum_in_enum_out(self):
@@ -223,10 +260,9 @@ class TestEnum(unittest.TestCase):
         self.assertEqual(len(lst), len(Season))
         self.assertEqual(len(Season), 4, Season)
         if not six.PY2:
-            self.assertEqual(
-                [Season.SPRING, Season.SUMMER, Season.AUTUMN, Season.WINTER], lst)
+            self.assertEqual([Season.SPRING, Season.SUMMER, Season.AUTUMN, Season.WINTER], lst)
 
-        for i, season in enumerate('SPRING SUMMER AUTUMN WINTER'.split(), 1):
+        for i, season in enumerate("SPRING SUMMER AUTUMN WINTER".split(), 1):
             e = Season(i)
             self.assertEqual(e, getattr(Season, season))
             self.assertEqual(e.value, i)
@@ -235,25 +271,25 @@ class TestEnum(unittest.TestCase):
             self.assertIn(e, Season)
             self.assertIs(type(e), Season)
             self.assertIsInstance(e, Season)
-            self.assertEqual(str(e), 'Season.' + season)
+            self.assertEqual(str(e), "Season." + season)
             self.assertEqual(
                 repr(e),
-                '<Season.{0}: {1}>'.format(season, i),
+                "<Season.{0}: {1}>".format(season, i),
             )
 
     def test_value_name(self):
         Season = self.Season
-        self.assertEqual(Season.SPRING.name, 'SPRING')
+        self.assertEqual(Season.SPRING.name, "SPRING")
         self.assertEqual(Season.SPRING.value, 1)
         with self.assertRaises(AttributeError):
-            Season.SPRING.name = 'invierno'
+            Season.SPRING.name = "invierno"
         with self.assertRaises(AttributeError):
             Season.SPRING.value = 2
 
     def test_changing_member(self):
         Season = self.Season
         with self.assertRaises(AttributeError):
-            Season.WINTER = 'really cold'
+            Season.WINTER = "really cold"
 
     def test_attribute_deletion(self):
         class Season(Enum):
@@ -265,9 +301,9 @@ class TestEnum(unittest.TestCase):
             def spam(cls):
                 pass
 
-        self.assertTrue(hasattr(Season, 'spam'))
+        self.assertTrue(hasattr(Season, "spam"))
         del Season.spam
-        self.assertFalse(hasattr(Season, 'spam'))
+        self.assertFalse(hasattr(Season, "spam"))
 
         with self.assertRaises(AttributeError):
             del Season.SPRING
@@ -297,18 +333,27 @@ class TestEnum(unittest.TestCase):
 
     def test_invalid_names(self):
         with self.assertRaises(ValueError):
+
             class Wrong(Enum):
                 mro = 9
+
         with self.assertRaises(ValueError):
+
             class Wrong2(Enum):
                 _create_ = 11
+
         with self.assertRaises(ValueError):
+
             class Wrong3(Enum):
                 _get_mixins_ = 9
+
         with self.assertRaises(ValueError):
+
             class Wrong4(Enum):
                 _find_new_ = 1
+
         with self.assertRaises(ValueError):
+
             class Wrong5(Enum):
                 _any_name_ = 9
 
@@ -348,7 +393,7 @@ class TestEnum(unittest.TestCase):
             with self.assertWarns(DeprecationWarning):
                 self.assertNotIn(3, Season)
             with self.assertWarns(DeprecationWarning):
-                self.assertNotIn('AUTUMN', Season)
+                self.assertNotIn("AUTUMN", Season)
 
         val = Season(3)
         self.assertIn(val, Season)
@@ -360,9 +405,9 @@ class TestEnum(unittest.TestCase):
         self.assertNotIn(OtherEnum.two, Season)
 
     def test_member_contains(self):
-        self.assertRaises(TypeError, lambda: 'test' in self.Season.AUTUMN)
+        self.assertRaises(TypeError, lambda: "test" in self.Season.AUTUMN)
         self.assertRaises(TypeError, lambda: 3 in self.Season.AUTUMN)
-        self.assertRaises(TypeError, lambda: 'AUTUMN' in self.Season.AUTUMN)
+        self.assertRaises(TypeError, lambda: "AUTUMN" in self.Season.AUTUMN)
 
     def test_comparisons(self):
         # python2可以直接对比,但对比关系不明确
@@ -396,13 +441,17 @@ class TestEnum(unittest.TestCase):
         if not six.PY2:
             self.assertEqual(
                 lst,
-                [Season.SPRING, Season.SUMMER,
-                 Season.AUTUMN, Season.WINTER,
-                 ])
-            self.assertEqual(Season.FALL.name, 'AUTUMN')
+                [
+                    Season.SPRING,
+                    Season.SUMMER,
+                    Season.AUTUMN,
+                    Season.WINTER,
+                ],
+            )
+            self.assertEqual(Season.FALL.name, "AUTUMN")
             self.assertEqual(
                 [k for k, v in Season.__members__.items() if v.name != k],
-                ['FALL', 'ANOTHER_SPRING'],
+                ["FALL", "ANOTHER_SPRING"],
             )
         self.assertIs(Season.FALL, Season.AUTUMN)
         self.assertEqual(Season.FALL.value, 3)
@@ -414,6 +463,7 @@ class TestEnum(unittest.TestCase):
         # Python2属性初始化无法识别多个相同的Key
         if not six.PY2:
             with self.assertRaises(TypeError):
+
                 class Color(Enum):
                     red = 1
                     green = 2
@@ -421,19 +471,21 @@ class TestEnum(unittest.TestCase):
                     red = 4
 
             with self.assertRaises(TypeError):
+
                 class Color2(Enum):
                     red = 1
                     green = 2
                     blue = 3
 
                     def red(self):
-                        return 'red'
+                        return "red"
 
             with self.assertRaises(TypeError):
+
                 class Color3(Enum):
                     @property
                     def red(self):
-                        return 'redder'
+                        return "redder"
 
                     red = 1  # type: ignore # noqa: F811
                     green = 2
@@ -450,23 +502,17 @@ class TestEnum(unittest.TestCase):
                 [Huh.name, Huh.value],
             )
         self.assertIs(type(Huh.name), Huh)
-        self.assertEqual(Huh.name.name, 'name')
+        self.assertEqual(Huh.name.name, "name")
         self.assertEqual(Huh.name.value, 1)
 
     def test_format_enum(self):
         Season = self.Season
-        self.assertEqual('{}'.format(Season.SPRING),
-                         '{}'.format(str(Season.SPRING)))
-        self.assertEqual('{:}'.format(Season.SPRING),
-                         '{:}'.format(str(Season.SPRING)))
-        self.assertEqual('{:20}'.format(Season.SPRING),
-                         '{:20}'.format(str(Season.SPRING)))
-        self.assertEqual('{:^20}'.format(Season.SPRING),
-                         '{:^20}'.format(str(Season.SPRING)))
-        self.assertEqual('{:>20}'.format(Season.SPRING),
-                         '{:>20}'.format(str(Season.SPRING)))
-        self.assertEqual('{:<20}'.format(Season.SPRING),
-                         '{:<20}'.format(str(Season.SPRING)))
+        self.assertEqual("{}".format(Season.SPRING), "{}".format(str(Season.SPRING)))
+        self.assertEqual("{:}".format(Season.SPRING), "{:}".format(str(Season.SPRING)))
+        self.assertEqual("{:20}".format(Season.SPRING), "{:20}".format(str(Season.SPRING)))
+        self.assertEqual("{:^20}".format(Season.SPRING), "{:^20}".format(str(Season.SPRING)))
+        self.assertEqual("{:>20}".format(Season.SPRING), "{:>20}".format(str(Season.SPRING)))
+        self.assertEqual("{:<20}".format(Season.SPRING), "{:<20}".format(str(Season.SPRING)))
 
     def test_format_enum_custom(self):
         class TestFloat(float, Enum):
@@ -474,53 +520,53 @@ class TestEnum(unittest.TestCase):
             two = 2.0
 
             def __format__(self, spec):
-                return 'TestFloat success!'
+                return "TestFloat success!"
 
-        self.assertEqual('{}'.format(TestFloat.one), 'TestFloat success!')
+        self.assertEqual("{}".format(TestFloat.one), "TestFloat success!")
 
     def assertFormatIsValue(self, spec, member):
         self.assertEqual(spec.format(member), spec.format(member.value))
 
     def test_format_enum_date(self):
         Holiday = self.Holiday
-        self.assertFormatIsValue('{}', Holiday.IDES_OF_MARCH)
-        self.assertFormatIsValue('{:}', Holiday.IDES_OF_MARCH)
-        self.assertFormatIsValue('{:20}', Holiday.IDES_OF_MARCH)
-        self.assertFormatIsValue('{:^20}', Holiday.IDES_OF_MARCH)
-        self.assertFormatIsValue('{:>20}', Holiday.IDES_OF_MARCH)
-        self.assertFormatIsValue('{:<20}', Holiday.IDES_OF_MARCH)
-        self.assertFormatIsValue('{:%Y %m}', Holiday.IDES_OF_MARCH)
-        self.assertFormatIsValue('{:%Y %m %M:00}', Holiday.IDES_OF_MARCH)
+        self.assertFormatIsValue("{}", Holiday.IDES_OF_MARCH)
+        self.assertFormatIsValue("{:}", Holiday.IDES_OF_MARCH)
+        self.assertFormatIsValue("{:20}", Holiday.IDES_OF_MARCH)
+        self.assertFormatIsValue("{:^20}", Holiday.IDES_OF_MARCH)
+        self.assertFormatIsValue("{:>20}", Holiday.IDES_OF_MARCH)
+        self.assertFormatIsValue("{:<20}", Holiday.IDES_OF_MARCH)
+        self.assertFormatIsValue("{:%Y %m}", Holiday.IDES_OF_MARCH)
+        self.assertFormatIsValue("{:%Y %m %M:00}", Holiday.IDES_OF_MARCH)
 
     def test_format_enum_float(self):
         Konstants = self.Konstants
-        self.assertFormatIsValue('{}', Konstants.TAU)
-        self.assertFormatIsValue('{:}', Konstants.TAU)
-        self.assertFormatIsValue('{:20}', Konstants.TAU)
-        self.assertFormatIsValue('{:^20}', Konstants.TAU)
-        self.assertFormatIsValue('{:>20}', Konstants.TAU)
-        self.assertFormatIsValue('{:<20}', Konstants.TAU)
-        self.assertFormatIsValue('{:n}', Konstants.TAU)
-        self.assertFormatIsValue('{:5.2}', Konstants.TAU)
-        self.assertFormatIsValue('{:f}', Konstants.TAU)
+        self.assertFormatIsValue("{}", Konstants.TAU)
+        self.assertFormatIsValue("{:}", Konstants.TAU)
+        self.assertFormatIsValue("{:20}", Konstants.TAU)
+        self.assertFormatIsValue("{:^20}", Konstants.TAU)
+        self.assertFormatIsValue("{:>20}", Konstants.TAU)
+        self.assertFormatIsValue("{:<20}", Konstants.TAU)
+        self.assertFormatIsValue("{:n}", Konstants.TAU)
+        self.assertFormatIsValue("{:5.2}", Konstants.TAU)
+        self.assertFormatIsValue("{:f}", Konstants.TAU)
 
     def test_format_enum_str(self):
         Directional = self.Directional
-        self.assertFormatIsValue('{}', Directional.WEST)
-        self.assertFormatIsValue('{:}', Directional.WEST)
-        self.assertFormatIsValue('{:20}', Directional.WEST)
-        self.assertFormatIsValue('{:^20}', Directional.WEST)
-        self.assertFormatIsValue('{:>20}', Directional.WEST)
-        self.assertFormatIsValue('{:<20}', Directional.WEST)
+        self.assertFormatIsValue("{}", Directional.WEST)
+        self.assertFormatIsValue("{:}", Directional.WEST)
+        self.assertFormatIsValue("{:20}", Directional.WEST)
+        self.assertFormatIsValue("{:^20}", Directional.WEST)
+        self.assertFormatIsValue("{:>20}", Directional.WEST)
+        self.assertFormatIsValue("{:<20}", Directional.WEST)
 
     def test_hash(self):
         Season = self.Season
         dates = {}
-        dates[Season.WINTER] = '1225'
-        dates[Season.SPRING] = '0315'
-        dates[Season.SUMMER] = '0704'
-        dates[Season.AUTUMN] = '1031'
-        self.assertEqual(dates[Season.AUTUMN], '1031')
+        dates[Season.WINTER] = "1225"
+        dates[Season.SPRING] = "0315"
+        dates[Season.SUMMER] = "0704"
+        dates[Season.AUTUMN] = "1031"
+        self.assertEqual(dates[Season.AUTUMN], "1031")
 
     def test_intenum_from_scratch(self):
         class phy(int, Enum):
@@ -558,8 +604,8 @@ class TestEnum(unittest.TestCase):
 
     def test_strenum_from_scratch(self):
         class phy(str, Enum):
-            pi = 'Pi'
-            tau = 'Tau'
+            pi = "Pi"
+            tau = "Tau"
 
         self.assertTrue(phy.pi < phy.tau)
 
@@ -568,8 +614,8 @@ class TestEnum(unittest.TestCase):
             pass
 
         class phy(StrEnum):
-            pi = 'Pi'
-            tau = 'Tau'
+            pi = "Pi"
+            tau = "Tau"
 
         self.assertTrue(phy.pi < phy.tau)
 
@@ -613,23 +659,22 @@ class TestEnum(unittest.TestCase):
     def test_enum_function_with_qualname(self):
         if isinstance(Theory, Exception):
             raise Theory
-        self.assertEqual(Theory.__qualname__, 'spanish_inquisition')
+        self.assertEqual(Theory.__qualname__, "spanish_inquisition")
 
     def test_class_nested_enum_and_pickle_protocol_four(self):
         if not six.PY2:
             # would normally just have this directly in the class namespace
             class NestedEnum(Enum):
-                twigs = 'common'
-                shiny = 'rare'
+                twigs = "common"
+                shiny = "rare"
 
             self.__class__.NestedEnum = NestedEnum
-            self.NestedEnum.__qualname__ = '%s.NestedEnum' % self.__class__.__name__
+            self.NestedEnum.__qualname__ = "%s.NestedEnum" % self.__class__.__name__
             _test_pickle_dump_load(self.assertIs, self.NestedEnum.twigs)
 
     def test_exploding_pickle(self):
-        BadPickle = Enum(
-            'BadPickle', 'dill sweet bread-n-butter', module=__name__)
-        globals()['BadPickle'] = BadPickle
+        BadPickle = Enum("BadPickle", "dill sweet bread-n-butter", module=__name__)
+        globals()["BadPickle"] = BadPickle
         # now break BadPickle to test exception raising
         enum._make_class_unpicklable(BadPickle)
         _test_pickle_exception(self.assertRaises, TypeError, BadPickle.dill)
@@ -637,11 +682,11 @@ class TestEnum(unittest.TestCase):
 
     def test_string_enum(self):
         class SkillLevel(str, Enum):
-            master = 'what is the sound of one hand clapping?'
-            journeyman = 'why did the chicken cross the road?'
-            apprentice = 'knock, knock!'
+            master = "what is the sound of one hand clapping?"
+            journeyman = "why did the chicken cross the road?"
+            apprentice = "knock, knock!"
 
-        self.assertEqual(SkillLevel.apprentice, 'knock, knock!')
+        self.assertEqual(SkillLevel.apprentice, "knock, knock!")
 
     def test_getattr_getitem(self):
         class Period(Enum):
@@ -651,15 +696,16 @@ class TestEnum(unittest.TestCase):
             night = 4
 
         self.assertIs(Period(2), Period.noon)
-        self.assertIs(getattr(Period, 'night'), Period.night)
-        self.assertIs(Period['morning'], Period.morning)
+        self.assertIs(getattr(Period, "night"), Period.night)
+        self.assertIs(Period["morning"], Period.morning)
 
     def test_getattr_dunder(self):
         Season = self.Season
-        self.assertTrue(getattr(Season, '__eq__'))
+        self.assertTrue(getattr(Season, "__eq__"))
 
     def test_iteration_order(self):
         if not six.PY2:
+
             class Season(Enum):
                 SUMMER = 2
                 WINTER = 4
@@ -675,12 +721,11 @@ class TestEnum(unittest.TestCase):
         if not six.PY2:
             self.assertEqual(
                 list(reversed(self.Season)),
-                [self.Season.WINTER, self.Season.AUTUMN, self.Season.SUMMER,
-                 self.Season.SPRING]
+                [self.Season.WINTER, self.Season.AUTUMN, self.Season.SUMMER, self.Season.SPRING],
             )
 
     def test_programmatic_function_string(self):
-        SummerMonth = Enum('SummerMonth', 'june july august')
+        SummerMonth = Enum("SummerMonth", "june july august")
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
@@ -689,7 +734,7 @@ class TestEnum(unittest.TestCase):
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
             )
-        for i, month in enumerate('june july august'.split(), 1):
+        for i, month in enumerate("june july august".split(), 1):
             e = SummerMonth(i)
             self.assertEqual(int(e.value), i)
             self.assertNotEqual(e, i)
@@ -698,7 +743,7 @@ class TestEnum(unittest.TestCase):
             self.assertIs(type(e), SummerMonth)
 
     def test_programmatic_function_string_with_start(self):
-        SummerMonth = Enum('SummerMonth', 'june july august', start=10)
+        SummerMonth = Enum("SummerMonth", "june july august", start=10)
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
@@ -707,7 +752,7 @@ class TestEnum(unittest.TestCase):
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
             )
-        for i, month in enumerate('june july august'.split(), 10):
+        for i, month in enumerate("june july august".split(), 10):
             e = SummerMonth(i)
             self.assertEqual(int(e.value), i)
             self.assertNotEqual(e, i)
@@ -716,7 +761,7 @@ class TestEnum(unittest.TestCase):
             self.assertIs(type(e), SummerMonth)
 
     def test_programmatic_function_string_list(self):
-        SummerMonth = Enum('SummerMonth', ['june', 'july', 'august'])
+        SummerMonth = Enum("SummerMonth", ["june", "july", "august"])
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
@@ -725,7 +770,7 @@ class TestEnum(unittest.TestCase):
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
             )
-        for i, month in enumerate('june july august'.split(), 1):
+        for i, month in enumerate("june july august".split(), 1):
             e = SummerMonth(i)
             self.assertEqual(int(e.value), i)
             self.assertNotEqual(e, i)
@@ -734,7 +779,7 @@ class TestEnum(unittest.TestCase):
             self.assertIs(type(e), SummerMonth)
 
     def test_programmatic_function_string_list_with_start(self):
-        SummerMonth = Enum('SummerMonth', ['june', 'july', 'august'], start=20)
+        SummerMonth = Enum("SummerMonth", ["june", "july", "august"], start=20)
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
@@ -743,7 +788,7 @@ class TestEnum(unittest.TestCase):
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
             )
-        for i, month in enumerate('june july august'.split(), 20):
+        for i, month in enumerate("june july august".split(), 20):
             e = SummerMonth(i)
             self.assertEqual(int(e.value), i)
             self.assertNotEqual(e, i)
@@ -752,10 +797,7 @@ class TestEnum(unittest.TestCase):
             self.assertIs(type(e), SummerMonth)
 
     def test_programmatic_function_iterable(self):
-        SummerMonth = Enum(
-            'SummerMonth',
-            (('june', 1), ('july', 2), ('august', 3))
-        )
+        SummerMonth = Enum("SummerMonth", (("june", 1), ("july", 2), ("august", 3)))
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
@@ -764,7 +806,7 @@ class TestEnum(unittest.TestCase):
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
             )
-        for i, month in enumerate('june july august'.split(), 1):
+        for i, month in enumerate("june july august".split(), 1):
             e = SummerMonth(i)
             self.assertEqual(int(e.value), i)
             self.assertNotEqual(e, i)
@@ -773,10 +815,7 @@ class TestEnum(unittest.TestCase):
             self.assertIs(type(e), SummerMonth)
 
     def test_programmatic_function_from_dict(self):
-        SummerMonth = Enum(
-            'SummerMonth',
-            OrderedDict((('june', 1), ('july', 2), ('august', 3)))
-        )
+        SummerMonth = Enum("SummerMonth", OrderedDict((("june", 1), ("july", 2), ("august", 3))))
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
@@ -785,7 +824,7 @@ class TestEnum(unittest.TestCase):
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
             )
-        for i, month in enumerate('june july august'.split(), 1):
+        for i, month in enumerate("june july august".split(), 1):
             e = SummerMonth(i)
             self.assertEqual(int(e.value), i)
             self.assertNotEqual(e, i)
@@ -794,7 +833,7 @@ class TestEnum(unittest.TestCase):
             self.assertIs(type(e), SummerMonth)
 
     def test_programmatic_function_type(self):
-        SummerMonth = Enum('SummerMonth', 'june july august', type=int)
+        SummerMonth = Enum("SummerMonth", "june july august", type=int)
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
@@ -803,7 +842,7 @@ class TestEnum(unittest.TestCase):
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
             )
-        for i, month in enumerate('june july august'.split(), 1):
+        for i, month in enumerate("june july august".split(), 1):
             e = SummerMonth(i)
             self.assertEqual(e, i)
             self.assertEqual(e.name, month)
@@ -811,7 +850,7 @@ class TestEnum(unittest.TestCase):
             self.assertIs(type(e), SummerMonth)
 
     def test_programmatic_function_type_with_start(self):
-        SummerMonth = Enum('SummerMonth', 'june july august', type=int, start=30)
+        SummerMonth = Enum("SummerMonth", "june july august", type=int, start=30)
         lst = list(SummerMonth)
         self.assertEqual(len(lst), len(SummerMonth))
         self.assertEqual(len(SummerMonth), 3, SummerMonth)
@@ -820,7 +859,7 @@ class TestEnum(unittest.TestCase):
                 [SummerMonth.june, SummerMonth.july, SummerMonth.august],
                 lst,
             )
-        for i, month in enumerate('june july august'.split(), 30):
+        for i, month in enumerate("june july august".split(), 30):
             e = SummerMonth(i)
             self.assertEqual(e, i)
             self.assertEqual(e.name, month)
@@ -830,9 +869,9 @@ class TestEnum(unittest.TestCase):
     def test_subclassing(self):
         if isinstance(Name, Exception):
             raise Name
-        self.assertEqual(Name.BDFL, 'Guido van Rossum')
-        self.assertTrue(Name.BDFL, Name('Guido van Rossum'))
-        self.assertIs(Name.BDFL, getattr(Name, 'BDFL'))
+        self.assertEqual(Name.BDFL, "Guido van Rossum")
+        self.assertTrue(Name.BDFL, Name("Guido van Rossum"))
+        self.assertIs(Name.BDFL, getattr(Name, "BDFL"))
         _test_pickle_dump_load(self.assertIs, Name.BDFL)
 
     def test_extending(self):
@@ -842,6 +881,7 @@ class TestEnum(unittest.TestCase):
             blue = 3
 
         with self.assertRaises(TypeError):
+
             class MoreColor(Color):
                 cyan = 4
                 magenta = 5
@@ -849,19 +889,20 @@ class TestEnum(unittest.TestCase):
 
     def test_exclude_methods(self):
         class whatever(Enum):
-            this = 'that'
-            these = 'those'
+            this = "that"
+            these = "those"
 
             def really(self):
-                return 'no, not %s' % self.value
+                return "no, not %s" % self.value
 
         self.assertIsNot(type(whatever.really), whatever)
-        self.assertEqual(whatever.this.really(), 'no, not that')
+        self.assertEqual(whatever.this.really(), "no, not that")
 
     def test_wrong_inheritance_order(self):
         with self.assertRaises(TypeError):
+
             class Wrong(Enum, str):
-                NotHere = 'error before this point'
+                NotHere = "error before this point"
 
     def test_wrong_enum_in_call(self):
         class Monochrome(Enum):
@@ -895,7 +936,7 @@ class TestEnum(unittest.TestCase):
         with self.assertRaises(ValueError):
             Color(4)
         with self.assertRaises(KeyError):
-            Color['chartreuse']
+            Color["chartreuse"]
 
     def test_new_repr(self):
         class Color(Enum):
@@ -925,7 +966,7 @@ class TestEnum(unittest.TestCase):
 
     def test_subclasses_with_getnewargs(self):
         class NamedInt(int):
-            __qualname__ = 'NamedInt'  # needed for pickle protocol 4
+            __qualname__ = "NamedInt"  # needed for pickle protocol 4
 
             def __new__(cls, *args):
                 _args = args
@@ -947,9 +988,7 @@ class TestEnum(unittest.TestCase):
 
             def __repr__(self):
                 # repr() is updated to include the name and type info
-                return "{}({!r}, {})".format(type(self).__name__,
-                                             self.__name__,
-                                             int.__repr__(self))
+                return "{}({!r}, {})".format(type(self).__name__, self.__name__, int.__repr__(self))
 
             def __str__(self):
                 # str() is unchanged, even if it relies on the repr() fallback
@@ -964,22 +1003,20 @@ class TestEnum(unittest.TestCase):
             def __add__(self, other):
                 temp = int(self) + int(other)
                 if isinstance(self, NamedInt) and isinstance(other, NamedInt):
-                    return NamedInt(
-                        '({0} + {1})'.format(self.__name__, other.__name__),
-                        temp)
+                    return NamedInt("({0} + {1})".format(self.__name__, other.__name__), temp)
                 else:
                     return temp
 
         class NEI(NamedInt, Enum):
-            __qualname__ = 'NEI'  # needed for pickle protocol 4
-            x = ('the-x', 1)
-            y = ('the-y', 2)
+            __qualname__ = "NEI"  # needed for pickle protocol 4
+            x = ("the-x", 1)
+            y = ("the-y", 2)
 
         self.assertIs(NEI.__new__, Enum.__new__)
         self.assertEqual(repr(NEI.x + NEI.y), "NamedInt('(the-x + the-y)', 3)")
-        globals()['NamedInt'] = NamedInt
-        globals()['NEI'] = NEI
-        NI5 = NamedInt('test', 5)
+        globals()["NamedInt"] = NamedInt
+        globals()["NEI"] = NEI
+        NI5 = NamedInt("test", 5)
         self.assertEqual(NI5, 5)
         _test_pickle_dump_load(self.assertEqual, NI5, 5)
         self.assertEqual(NEI.y.value, 2)
@@ -988,8 +1025,9 @@ class TestEnum(unittest.TestCase):
 
     def test_subclasses_with_getnewargs_ex(self):
         if not six.PY2:
+
             class NamedInt(int):
-                __qualname__ = 'NamedInt'  # needed for pickle protocol 4
+                __qualname__ = "NamedInt"  # needed for pickle protocol 4
 
                 def __new__(cls, *args):
                     _args = args
@@ -1011,9 +1049,7 @@ class TestEnum(unittest.TestCase):
 
                 def __repr__(self):
                     # repr() is updated to include the name and type info
-                    return "{}({!r}, {})".format(type(self).__name__,
-                                                 self.__name__,
-                                                 int.__repr__(self))
+                    return "{}({!r}, {})".format(type(self).__name__, self.__name__, int.__repr__(self))
 
                 def __str__(self):
                     # str() is unchanged, even if it relies on the repr() fallback
@@ -1028,22 +1064,20 @@ class TestEnum(unittest.TestCase):
                 def __add__(self, other):
                     temp = int(self) + int(other)
                     if isinstance(self, NamedInt) and isinstance(other, NamedInt):
-                        return NamedInt(
-                            '({0} + {1})'.format(self.__name__, other.__name__),
-                            temp)
+                        return NamedInt("({0} + {1})".format(self.__name__, other.__name__), temp)
                     else:
                         return temp
 
             class NEI(NamedInt, Enum):
-                __qualname__ = 'NEI'  # needed for pickle protocol 4
-                x = ('the-x', 1)
-                y = ('the-y', 2)
+                __qualname__ = "NEI"  # needed for pickle protocol 4
+                x = ("the-x", 1)
+                y = ("the-y", 2)
 
             self.assertIs(NEI.__new__, Enum.__new__)
             self.assertEqual(repr(NEI.x + NEI.y), "NamedInt('(the-x + the-y)', 3)")
-            globals()['NamedInt'] = NamedInt
-            globals()['NEI'] = NEI
-            NI5 = NamedInt('test', 5)
+            globals()["NamedInt"] = NamedInt
+            globals()["NEI"] = NEI
+            NI5 = NamedInt("test", 5)
             self.assertEqual(NI5, 5)
             _test_pickle_dump_load(self.assertEqual, NI5, 5)
             self.assertEqual(NEI.y.value, 2)
@@ -1052,7 +1086,7 @@ class TestEnum(unittest.TestCase):
 
     def test_subclasses_with_reduce(self):
         class NamedInt(int):
-            __qualname__ = 'NamedInt'  # needed for pickle protocol 4
+            __qualname__ = "NamedInt"  # needed for pickle protocol 4
 
             def __new__(cls, *args):
                 _args = args
@@ -1074,9 +1108,7 @@ class TestEnum(unittest.TestCase):
 
             def __repr__(self):
                 # repr() is updated to include the name and type info
-                return "{}({!r}, {})".format(type(self).__name__,
-                                             self.__name__,
-                                             int.__repr__(self))
+                return "{}({!r}, {})".format(type(self).__name__, self.__name__, int.__repr__(self))
 
             def __str__(self):
                 # str() is unchanged, even if it relies on the repr() fallback
@@ -1091,22 +1123,20 @@ class TestEnum(unittest.TestCase):
             def __add__(self, other):
                 temp = int(self) + int(other)
                 if isinstance(self, NamedInt) and isinstance(other, NamedInt):
-                    return NamedInt(
-                        '({0} + {1})'.format(self.__name__, other.__name__),
-                        temp)
+                    return NamedInt("({0} + {1})".format(self.__name__, other.__name__), temp)
                 else:
                     return temp
 
         class NEI(NamedInt, Enum):
-            __qualname__ = 'NEI'  # needed for pickle protocol 4
-            x = ('the-x', 1)
-            y = ('the-y', 2)
+            __qualname__ = "NEI"  # needed for pickle protocol 4
+            x = ("the-x", 1)
+            y = ("the-y", 2)
 
         self.assertIs(NEI.__new__, Enum.__new__)
         self.assertEqual(repr(NEI.x + NEI.y), "NamedInt('(the-x + the-y)', 3)")
-        globals()['NamedInt'] = NamedInt
-        globals()['NEI'] = NEI
-        NI5 = NamedInt('test', 5)
+        globals()["NamedInt"] = NamedInt
+        globals()["NEI"] = NEI
+        NI5 = NamedInt("test", 5)
         self.assertEqual(NI5, 5)
         _test_pickle_dump_load(self.assertEqual, NI5, 5)
         self.assertEqual(NEI.y.value, 2)
@@ -1115,8 +1145,9 @@ class TestEnum(unittest.TestCase):
 
     def test_subclasses_with_reduce_ex(self):
         if not six.PY2:
+
             class NamedInt(int):
-                __qualname__ = 'NamedInt'  # needed for pickle protocol 4
+                __qualname__ = "NamedInt"  # needed for pickle protocol 4
 
                 def __new__(cls, *args):
                     _args = args
@@ -1138,9 +1169,7 @@ class TestEnum(unittest.TestCase):
 
                 def __repr__(self):
                     # repr() is updated to include the name and type info
-                    return "{}({!r}, {})".format(type(self).__name__,
-                                                 self.__name__,
-                                                 int.__repr__(self))
+                    return "{}({!r}, {})".format(type(self).__name__, self.__name__, int.__repr__(self))
 
                 def __str__(self):
                     # str() is unchanged, even if it relies on the repr() fallback
@@ -1155,22 +1184,20 @@ class TestEnum(unittest.TestCase):
                 def __add__(self, other):
                     temp = int(self) + int(other)
                     if isinstance(self, NamedInt) and isinstance(other, NamedInt):
-                        return NamedInt(
-                            '({0} + {1})'.format(self.__name__, other.__name__),
-                            temp)
+                        return NamedInt("({0} + {1})".format(self.__name__, other.__name__), temp)
                     else:
                         return temp
 
             class NEI(NamedInt, Enum):
-                __qualname__ = 'NEI'  # needed for pickle protocol 4
-                x = ('the-x', 1)
-                y = ('the-y', 2)
+                __qualname__ = "NEI"  # needed for pickle protocol 4
+                x = ("the-x", 1)
+                y = ("the-y", 2)
 
             self.assertIs(NEI.__new__, Enum.__new__)
             self.assertEqual(repr(NEI.x + NEI.y), "NamedInt('(the-x + the-y)', 3)")
-            globals()['NamedInt'] = NamedInt
-            globals()['NEI'] = NEI
-            NI5 = NamedInt('test', 5)
+            globals()["NamedInt"] = NamedInt
+            globals()["NEI"] = NEI
+            NI5 = NamedInt("test", 5)
             self.assertEqual(NI5, 5)
             _test_pickle_dump_load(self.assertEqual, NI5, 5)
             self.assertEqual(NEI.y.value, 2)
@@ -1179,7 +1206,7 @@ class TestEnum(unittest.TestCase):
 
     def test_subclasses_without_direct_pickle_support(self):
         class NamedInt(int):
-            __qualname__ = 'NamedInt'
+            __qualname__ = "NamedInt"
 
             def __new__(cls, *args):
                 _args = args
@@ -1198,9 +1225,7 @@ class TestEnum(unittest.TestCase):
 
             def __repr__(self):
                 # repr() is updated to include the name and type info
-                return "{}({!r}, {})".format(type(self).__name__,
-                                             self.__name__,
-                                             int.__repr__(self))
+                return "{}({!r}, {})".format(type(self).__name__, self.__name__, int.__repr__(self))
 
             def __str__(self):
                 # str() is unchanged, even if it relies on the repr() fallback
@@ -1215,22 +1240,20 @@ class TestEnum(unittest.TestCase):
             def __add__(self, other):
                 temp = int(self) + int(other)
                 if isinstance(self, NamedInt) and isinstance(other, NamedInt):
-                    return NamedInt(
-                        '({0} + {1})'.format(self.__name__, other.__name__),
-                        temp)
+                    return NamedInt("({0} + {1})".format(self.__name__, other.__name__), temp)
                 else:
                     return temp
 
         class NEI(NamedInt, Enum):
-            __qualname__ = 'NEI'
-            x = ('the-x', 1)
-            y = ('the-y', 2)
+            __qualname__ = "NEI"
+            x = ("the-x", 1)
+            y = ("the-y", 2)
 
         self.assertIs(NEI.__new__, Enum.__new__)
         self.assertEqual(repr(NEI.x + NEI.y), "NamedInt('(the-x + the-y)', 3)")
-        globals()['NamedInt'] = NamedInt
-        globals()['NEI'] = NEI
-        NI5 = NamedInt('test', 5)
+        globals()["NamedInt"] = NamedInt
+        globals()["NEI"] = NEI
+        NI5 = NamedInt("test", 5)
         self.assertEqual(NI5, 5)
         self.assertEqual(NEI.y.value, 2)
         _test_pickle_exception(self.assertRaises, TypeError, NEI.x)
@@ -1238,7 +1261,7 @@ class TestEnum(unittest.TestCase):
 
     def test_subclasses_without_direct_pickle_support_using_name(self):
         class NamedInt(int):
-            __qualname__ = 'NamedInt'
+            __qualname__ = "NamedInt"
 
             def __new__(cls, *args):
                 _args = args
@@ -1257,9 +1280,7 @@ class TestEnum(unittest.TestCase):
 
             def __repr__(self):
                 # repr() is updated to include the name and type info
-                return "{}({!r}, {})".format(type(self).__name__,
-                                             self.__name__,
-                                             int.__repr__(self))
+                return "{}({!r}, {})".format(type(self).__name__, self.__name__, int.__repr__(self))
 
             def __str__(self):
                 # str() is unchanged, even if it relies on the repr() fallback
@@ -1274,25 +1295,23 @@ class TestEnum(unittest.TestCase):
             def __add__(self, other):
                 temp = int(self) + int(other)
                 if isinstance(self, NamedInt) and isinstance(other, NamedInt):
-                    return NamedInt(
-                        '({0} + {1})'.format(self.__name__, other.__name__),
-                        temp)
+                    return NamedInt("({0} + {1})".format(self.__name__, other.__name__), temp)
                 else:
                     return temp
 
         class NEI(NamedInt, Enum):
-            __qualname__ = 'NEI'
-            x = ('the-x', 1)
-            y = ('the-y', 2)
+            __qualname__ = "NEI"
+            x = ("the-x", 1)
+            y = ("the-y", 2)
 
             def __reduce_ex__(self, proto):
                 return getattr, (self.__class__, self._name_)
 
         self.assertIs(NEI.__new__, Enum.__new__)
         self.assertEqual(repr(NEI.x + NEI.y), "NamedInt('(the-x + the-y)', 3)")
-        globals()['NamedInt'] = NamedInt
-        globals()['NEI'] = NEI
-        NI5 = NamedInt('test', 5)
+        globals()["NamedInt"] = NamedInt
+        globals()["NEI"] = NEI
+        NI5 = NamedInt("test", 5)
         self.assertEqual(NI5, 5)
         self.assertEqual(NEI.y.value, 2)
         _test_pickle_dump_load(self.assertIs, NEI.y)
@@ -1300,15 +1319,15 @@ class TestEnum(unittest.TestCase):
 
     def test_tuple_subclass(self):
         class SomeTuple(tuple, Enum):
-            __qualname__ = 'SomeTuple'  # needed for pickle protocol 4
-            first = (1, 'for the money')
-            second = (2, 'for the show')
-            third = (3, 'for the music')
+            __qualname__ = "SomeTuple"  # needed for pickle protocol 4
+            first = (1, "for the money")
+            second = (2, "for the show")
+            third = (3, "for the music")
 
         self.assertIs(type(SomeTuple.first), SomeTuple)
         self.assertIsInstance(SomeTuple.second, tuple)
-        self.assertEqual(SomeTuple.third, (3, 'for the music'))
-        globals()['SomeTuple'] = SomeTuple
+        self.assertEqual(SomeTuple.third, (3, "for the music"))
+        globals()["SomeTuple"] = SomeTuple
         _test_pickle_dump_load(self.assertIs, SomeTuple.first)
 
     def test_duplicate_values_give_unique_enum_items(self):
@@ -1338,6 +1357,7 @@ class TestEnum(unittest.TestCase):
 
     def test_inherited_new_from_enhanced_enum(self):
         if not six.PY2:
+
             class AutoNumber(Enum):
                 def __new__(cls):
                     value = len(cls.__members__) + 1
@@ -1414,6 +1434,7 @@ class TestEnum(unittest.TestCase):
             blue = 3
 
         with self.assertRaises(TypeError):
+
             class MoreColor(Color):
                 cyan = 4
                 magenta = 5
@@ -1426,14 +1447,14 @@ class TestEnum(unittest.TestCase):
 
         class Color(Shade):
             def hex(self):
-                return '%s hexlified!' % self.value
+                return "%s hexlified!" % self.value
 
         class MoreColor(Color):
             cyan = 4
             magenta = 5
             yellow = 6
 
-        self.assertEqual(MoreColor.magenta.hex(), '5 hexlified!')
+        self.assertEqual(MoreColor.magenta.hex(), "5 hexlified!")
 
     def test_subclass_duplicate_name(self):
         class Base(Enum):
@@ -1451,12 +1472,12 @@ class TestEnum(unittest.TestCase):
         class Base(Enum):
             @DynamicClassAttribute
             def test(self):
-                return 'dynamic'
+                return "dynamic"
 
         class Test(Base):
             test = 1
 
-        self.assertEqual(Test.test.test, 'dynamic')
+        self.assertEqual(Test.test.test, "dynamic")
 
     def test_no_duplicates(self):
         class UniqueEnum(Enum):
@@ -1465,10 +1486,7 @@ class TestEnum(unittest.TestCase):
                 if any(self.value == e.value for e in cls):
                     a = self.name
                     e = cls(self.value).name
-                    raise ValueError(
-                        "aliases not allowed in UniqueEnum:  %r --> %r"
-                        % (a, e)
-                    )
+                    raise ValueError("aliases not allowed in UniqueEnum:  %r --> %r" % (a, e))
 
         class Color(UniqueEnum):
             red = 1
@@ -1476,6 +1494,7 @@ class TestEnum(unittest.TestCase):
             blue = 3
 
         with self.assertRaises(ValueError):
+
             class Color2(UniqueEnum):
                 red = 1
                 green = 2
@@ -1484,14 +1503,14 @@ class TestEnum(unittest.TestCase):
 
     def test_init(self):
         class Planet(Enum):
-            MERCURY = (3.303e+23, 2.4397e6)
-            VENUS = (4.869e+24, 6.0518e6)
-            EARTH = (5.976e+24, 6.37814e6)
-            MARS = (6.421e+23, 3.3972e6)
-            JUPITER = (1.9e+27, 7.1492e7)
-            SATURN = (5.688e+26, 6.0268e7)
-            URANUS = (8.686e+25, 2.5559e7)
-            NEPTUNE = (1.024e+26, 2.4746e7)
+            MERCURY = (3.303e23, 2.4397e6)
+            VENUS = (4.869e24, 6.0518e6)
+            EARTH = (5.976e24, 6.37814e6)
+            MARS = (6.421e23, 3.3972e6)
+            JUPITER = (1.9e27, 7.1492e7)
+            SATURN = (5.688e26, 6.0268e7)
+            URANUS = (8.686e25, 2.5559e7)
+            NEPTUNE = (1.024e26, 2.4746e7)
 
             def __init__(self, mass, radius):
                 self.mass = mass  # in kilograms
@@ -1500,17 +1519,17 @@ class TestEnum(unittest.TestCase):
             @property
             def surface_gravity(self):
                 # universal gravitational constant  (m3 kg-1 s-2)
-                G = 6.67300E-11
+                G = 6.67300e-11
                 return G * self.mass / (self.radius * self.radius)
 
         self.assertEqual(round(Planet.EARTH.surface_gravity, 2), 9.80)
-        self.assertEqual(Planet.EARTH.value, (5.976e+24, 6.37814e6))
+        self.assertEqual(Planet.EARTH.value, (5.976e24, 6.37814e6))
 
     def test_ignore(self):
         class Period(timedelta, Enum):
-            '''
+            """
             different lengths of time
-            '''
+            """
 
             def __new__(cls, value, period):
                 obj = timedelta.__new__(cls, value)
@@ -1518,27 +1537,28 @@ class TestEnum(unittest.TestCase):
                 obj.period = period
                 return obj
 
-            _ignore_ = 'Period i'
+            _ignore_ = "Period i"
             Period = vars()
             for i in range(13):
-                Period['month_%d' % i] = i * 30, 'month'
+                Period["month_%d" % i] = i * 30, "month"
             for i in range(53):
-                Period['week_%d' % i] = i * 7, 'week'
+                Period["week_%d" % i] = i * 7, "week"
             for i in range(32):
-                Period['day_%d' % i] = i, 'day'
+                Period["day_%d" % i] = i, "day"
             OneDay = day_1  # type: ignore # noqa: F821
             OneWeek = week_1  # type: ignore # noqa: F821
             OneMonth = month_1  # type: ignore # noqa: F821
 
-        self.assertFalse(hasattr(Period, '_ignore_'))
-        self.assertFalse(hasattr(Period, 'Period'))
-        self.assertFalse(hasattr(Period, 'i'))
+        self.assertFalse(hasattr(Period, "_ignore_"))
+        self.assertFalse(hasattr(Period, "Period"))
+        self.assertFalse(hasattr(Period, "i"))
         self.assertTrue(isinstance(Period.day_1, timedelta))
         self.assertTrue(Period.month_1 is Period.day_30)
         self.assertTrue(Period.week_4 is Period.day_28)
 
     def test_nonhash_value(self):
         if not six.PY2:
+
             class AutoNumberInAList(Enum):
                 def __new__(cls):
                     value = [len(cls.__members__) + 1]
@@ -1559,6 +1579,7 @@ class TestEnum(unittest.TestCase):
 
     def test_conflicting_types_resolved_in_new(self):
         if not six.PY2:
+
             class LabelledIntEnum(int, Enum):
                 def __new__(cls, *args):
                     value, label = args
@@ -1583,40 +1604,40 @@ class TestEnum(unittest.TestCase):
 
             @classmethod
             def _missing_(cls, item):
-                if item == 'three':
+                if item == "three":
                     return cls.blue
-                elif item == 'bad return':
+                elif item == "bad return":
                     # trigger internal error
                     return 5
-                elif item == 'error out':
+                elif item == "error out":
                     raise ZeroDivisionError
                 else:
                     # trigger not found
                     return None
 
-        self.assertIs(Color('three'), Color.blue)
+        self.assertIs(Color("three"), Color.blue)
         self.assertRaises(ValueError, Color, 7)
         try:
-            Color('bad return')
+            Color("bad return")
         except TypeError as exc:
             self.assertTrue(isinstance(exc.__context__, ValueError))
         else:
-            raise Exception('Exception not raised.')
+            raise Exception("Exception not raised.")
         try:
-            Color('error out')
+            Color("error out")
         except ZeroDivisionError as exc:
             self.assertTrue(isinstance(exc.__context__, ValueError))
         else:
-            raise Exception('Exception not raised.')
+            raise Exception("Exception not raised.")
 
     def test_multiple_inherited_mixin(self):
         if not six.PY2:
+
             class StrEnum(str, Enum):
                 def __new__(cls, *args, **kwargs):
                     for a in args:
                         if not isinstance(a, str):
-                            raise TypeError("Enumeration '%s' (%s) is not"
-                                            " a string" % (a, type(a).__name__))
+                            raise TypeError("Enumeration '%s' (%s) is not" " a string" % (a, type(a).__name__))
                     return str.__new__(cls, *args, **kwargs)
 
             @unique
@@ -1648,15 +1669,16 @@ class TestOrder(unittest.TestCase):
 
     def test_same_members(self):
         class Color(Enum):
-            _order_ = 'red green blue'
+            _order_ = "red green blue"
             red = 1
             green = 2
             blue = 3
 
     def test_same_members_with_aliases(self):
         if not six.PY2:
+
             class Color(Enum):
-                _order_ = 'red green blue'
+                _order_ = "red green blue"
                 red = 1
                 green = 2
                 blue = 3
@@ -1669,43 +1691,48 @@ class TestOrder(unittest.TestCase):
 
     def test_same_members_wrong_order(self):
         if not six.PY2:
-            with self.assertRaisesRegex(TypeError, 'member order does not match _order_'):
+            with self.assertRaisesRegex(TypeError, "member order does not match _order_"):
+
                 class Color(Enum):
-                    _order_ = 'red green blue'
+                    _order_ = "red green blue"
                     red = 1
                     blue = 3
                     green = 2
 
     def test_order_has_extra_members(self):
-        with self.assertRaisesRegex(TypeError, 'member order does not match _order_'):
+        with self.assertRaisesRegex(TypeError, "member order does not match _order_"):
+
             class Color(Enum):
-                _order_ = 'red green blue purple'
+                _order_ = "red green blue purple"
                 red = 1
                 green = 2
                 blue = 3
 
     def test_order_has_extra_members_with_aliases(self):
-        with self.assertRaisesRegex(TypeError, 'member order does not match _order_'):
+        with self.assertRaisesRegex(TypeError, "member order does not match _order_"):
+
             class Color(Enum):
-                _order_ = 'red green blue purple'
+                _order_ = "red green blue purple"
                 red = 1
                 green = 2
                 blue = 3
                 verde = green
 
     def test_enum_has_extra_members(self):
-        with self.assertRaisesRegex(TypeError, 'member order does not match _order_'):
+        with self.assertRaisesRegex(TypeError, "member order does not match _order_"):
+
             class Color(Enum):
-                _order_ = 'red green blue'
+                _order_ = "red green blue"
                 red = 1
                 green = 2
                 blue = 3
                 purple = 4
 
     def test_enum_has_extra_members_with_aliases(self):
-        with self.assertRaisesRegex(TypeError, 'member order does not match _order_'):
+        with self.assertRaisesRegex(TypeError, "member order does not match _order_"):
+
             class Color(Enum):
-                _order_ = 'red green blue'
+                _order_ = "red green blue"
                 red = 1
                 green = 2
                 blue = 3
@@ -1717,16 +1744,16 @@ class TestEmptyAndNonLatinStrings(unittest.TestCase):
 
     def test_empty_string(self):
         with self.assertRaises(ValueError):
-            Enum('empty_abc', ('', 'B', 'C'))
+            Enum("empty_abc", ("", "B", "C"))
 
     def test_non_latin_character_string(self):
-        greek_abc = Enum('greek_abc', ('\u03B1', 'B', 'C'))
-        item = getattr(greek_abc, '\u03B1')
+        greek_abc = Enum("greek_abc", ("\u03B1", "B", "C"))
+        item = getattr(greek_abc, "\u03B1")
         self.assertEqual(item.value, 1)
 
     def test_non_latin_number_string(self):
-        hebrew_123 = Enum('hebrew_123', ('\u05D0', '2', '3'))
-        item = getattr(hebrew_123, '\u05D0')
+        hebrew_123 = Enum("hebrew_123", ("\u05D0", "2", "3"))
+        item = getattr(hebrew_123, "\u05D0")
         self.assertEqual(item.value, 1)
 
 
@@ -1736,30 +1763,33 @@ class TestUnique(unittest.TestCase):
         @unique
         class Clean(Enum):
             one = 1
-            two = 'dos'
+            two = "dos"
             tres = 4.0
 
     def test_unique_dirty(self):
         if not six.PY2:
-            with self.assertRaisesRegex(ValueError, 'tres.*one'):
+            with self.assertRaisesRegex(ValueError, "tres.*one"):
+
                 @unique
                 class Dirty(Enum):
                     one = 1
-                    two = 'dos'
+                    two = "dos"
                     tres = 1
+
         else:
             with self.assertRaises(ValueError):
+
                 @unique
                 class Dirty(Enum):
                     one = 1
-                    two = 'dos'
+                    two = "dos"
                     tres = 1
 
     def test_unique_with_name(self):
         @unique
         class Silly(Enum):
             one = 1
-            two = 'dos'
+            two = "dos"
             name = 3
 
 
@@ -1772,23 +1802,27 @@ class TestStdLib(unittest.TestCase):
         blue = 3
 
     def test_inspect_getmembers(self):
-        values = dict((
-            ('__class__', EnumMeta),
-            ('__doc__', 'An enumeration.'),
-            ('__members__', self.Color.__members__),
-            ('__module__', __name__),
-            ('blue', self.Color.blue),
-            ('green', self.Color.green),
-            ('red', self.Color.red),
-        ))
+        values = dict(
+            (
+                ("__class__", EnumMeta),
+                ("__doc__", "An enumeration."),
+                ("__members__", self.Color.__members__),
+                ("__module__", __name__),
+                ("blue", self.Color.blue),
+                ("green", self.Color.green),
+                ("red", self.Color.red),
+            )
+        )
         result = dict(inspect.getmembers(self.Color))
         self.assertEqual(values.keys(), result.keys())
         failed = False
         for k in values.keys():
             if result[k] != values[k]:
                 print()
-                print('\n%s\n     key: %s\n  result: %s\nexpected: %s\n%s\n' %
-                      ('=' * 75, k, result[k], values[k], '=' * 75))
+                print(
+                    "\n%s\n     key: %s\n  result: %s\nexpected: %s\n%s\n"
+                    % ("=" * 75, k, result[k], values[k], "=" * 75)
+                )
                 failed = True
         if failed:
             self.fail("result does not equal expected, see print above")
@@ -1796,14 +1830,15 @@ class TestStdLib(unittest.TestCase):
     def test_inspect_classify_class_attrs(self):
         # indirectly test __objclass__
         from inspect import Attribute
+
         values = [
-            Attribute(name='__class__', kind='data', defining_class=object, object=EnumMeta),
-            Attribute(name='__doc__', kind='data', defining_class=self.Color, object='An enumeration.'),
-            Attribute(name='__members__', kind='property', defining_class=EnumMeta, object=EnumMeta.__members__),
-            Attribute(name='__module__', kind='data', defining_class=self.Color, object=__name__),
-            Attribute(name='blue', kind='data', defining_class=self.Color, object=self.Color.blue),
-            Attribute(name='green', kind='data', defining_class=self.Color, object=self.Color.green),
-            Attribute(name='red', kind='data', defining_class=self.Color, object=self.Color.red),
+            Attribute(name="__class__", kind="data", defining_class=object, object=EnumMeta),
+            Attribute(name="__doc__", kind="data", defining_class=self.Color, object="An enumeration."),
+            Attribute(name="__members__", kind="property", defining_class=EnumMeta, object=EnumMeta.__members__),
+            Attribute(name="__module__", kind="data", defining_class=self.Color, object=__name__),
+            Attribute(name="blue", kind="data", defining_class=self.Color, object=self.Color.blue),
+            Attribute(name="green", kind="data", defining_class=self.Color, object=self.Color.green),
+            Attribute(name="red", kind="data", defining_class=self.Color, object=self.Color.red),
         ]
         values.sort(key=lambda item: item.name)
         result = list(inspect.classify_class_attrs(self.Color))
@@ -1811,9 +1846,9 @@ class TestStdLib(unittest.TestCase):
         failed = False
         for v, r in zip(values, result):
             if r != v:
-                if six.PY2 and v.name in ['__class__', '__members__']:
+                if six.PY2 and v.name in ["__class__", "__members__"]:
                     continue
-                print('\n%s\n%s\n%s\n%s\n' % ('=' * 75, r, v, '=' * 75))
+                print("\n%s\n%s\n%s\n%s\n" % ("=" * 75, r, v, "=" * 75))
                 failed = True
         if failed:
             self.fail("result does not equal expected, see print above")
@@ -1825,5 +1860,5 @@ class MiscTestCase(unittest.TestCase):
             support.check__all__(self, enum)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

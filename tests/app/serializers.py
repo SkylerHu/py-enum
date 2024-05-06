@@ -10,10 +10,10 @@ class ColorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ColorModel
-        fields = ('status', )
+        fields = ("status",)
         depth = 1
 
 
 class ApiSerializer(serializers.BaseSerializer):
 
-    color = serializers.ChoiceField(help_text='选择颜色', choices=Color)
+    color = serializers.ChoiceField(help_text="选择颜色", choices=Color)

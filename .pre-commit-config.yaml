@@ -4,8 +4,13 @@ exclude: >
         .*settings.*\.py|  # python settings
     )$
 default_language_version:
-    python: python3.6
+    python: python3.9
 repos:
+-   repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 24.4.2
+    hooks:
+      - id: black
+        args: ['--line-length', '120']
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.1.0
     hooks:
