@@ -38,7 +38,7 @@ jobs:
         run: tox -e py
 
       - name: Upload coverage
-        if: ${{ matrix.python-version in ['2.7', '3.10'] }}
+        if: ${{ matrix.python == '2.7' || matrix.python == '3.10' }}
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run:
