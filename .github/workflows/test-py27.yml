@@ -29,9 +29,3 @@ jobs:
       - name: Run tox targets for python2.7
         run:
           for e in `tox -l | grep "py27-"`; do tox -e $e; done
-
-      - name: Upload coverage
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-        run:
-          coveralls

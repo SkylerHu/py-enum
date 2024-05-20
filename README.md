@@ -1,4 +1,14 @@
 # py-enum
+
+[![GitHub Actions Workflow Status](https://github.com/SkylerHu/py-enum/actions/workflows/test-py3.yml/badge.svg?branch=master)](https://github.com/SkylerHu/py-enum)
+[![GitHub Actions Workflow Status](https://github.com/SkylerHu/py-enum/actions/workflows/test-py27.yml/badge.svg?branch=master)](https://github.com/SkylerHu/py-enum)
+[![GitHub Actions Workflow Status](https://github.com/SkylerHu/py-enum/actions/workflows/pre-commit.yml/badge.svg?branch=master)](https://github.com/SkylerHu/py-enum)
+[![Coveralls](https://img.shields.io/coverallsCoverage/github/SkylerHu/py-enum?branch=master)](https://github.com/SkylerHu/py-enum)
+[![PyPI - Wheel](https://img.shields.io/pypi/wheel/py-enum)](https://github.com/SkylerHu/py-enum)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/py-enum)](https://github.com/SkylerHu/py-enum)
+[![PyPI - Implementation](https://img.shields.io/pypi/implementation/py-enum)](https://github.com/SkylerHu/py-enum)
+[![GitHub License](https://img.shields.io/github/license/SkylerHu/py-enum)](https://github.com/SkylerHu/py-enum)
+
 A python enum module for python2.7 and django choices fields.
 
 通过改造python3中的enum.py而来，增加对python2的支持，并新增类`ChoiceEnum`用于以下场景：
