@@ -1,0 +1,46 @@
+name: test for py3
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+  workflow_dispatch:
+
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python: ["3.6", "3.9", "3.10"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install tox and any other packages
+        run: pip install tox coveralls
+
+      - name: Run tox targets for ${{ matrix.python }}
+        run: |
+          pyFlag=$(echo ${{ matrix.python }} | tr -d .)
+          for e in `tox -l | grep "$pyFlag-" | grep -v lint`; do tox -e $e; done
+
+      - name: Upload coverage
+        if: ${{ matrix.python == '3.10' }}
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+        run:
+          coveralls
