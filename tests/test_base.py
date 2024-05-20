@@ -7,7 +7,6 @@ from __future__ import print_function
 
 import inspect
 import unittest
-from test import support
 from datetime import timedelta
 from collections import OrderedDict
 from pickle import dumps, loads, PicklingError, HIGHEST_PROTOCOL
@@ -1857,6 +1856,8 @@ class TestStdLib(unittest.TestCase):
 class MiscTestCase(unittest.TestCase):
     def test__all__(self):
         if not six.PY2:
+            from test import support
+
             support.check__all__(self, enum)
 
 

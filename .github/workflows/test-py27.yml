@@ -1,0 +1,38 @@
+name: test for py27
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+  workflow_dispatch:
+
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+    container:
+      image: python:2.7.18-buster
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tox and any other packages
+        run: pip install tox==3.28.0
+
+      - name: Run tox targets for python2.7
+        run:
+          for e in `tox -l | grep "py27-"`; do tox -e $e; done
+
+#      - name: Upload coverage
+#        if: ${{ matrix.python == '2.7' || matrix.python == '3.10' }}
+#        env:
+#          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+#        run:
+#          coveralls
