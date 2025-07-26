@@ -61,20 +61,7 @@ class EnumChoiceMeta(enum.EnumMeta):
 
         return enum.unique(cls)
 
-    # def __getitem__(cls: type, params: typing.Any) -> "EnumChoiceMeta":  # type: ignore
-    #     # 处理泛型类型参数，如 ChoiceEnum[int]
-    #     if not isinstance(params, tuple):
-    #         params = (params,)
-
-    #     # 检查是否是类型参数
-    #     if all(isinstance(p, type) or p is None or hasattr(p, "__origin__") for p in params):
-    #         # 创建一个新的泛型类型
-    #         return typing._GenericAlias(cls, params)
-
-    #     # 如果不是类型参数，则按照原来的逻辑处理（查找枚举成员）
-    #     return super().__getitem__(params)
-
-    def __contains__(cls, member: typing.Union[enum.Enum, T]) -> bool:  # type: ignore
+    def __contains__(cls, member: typing.Any) -> bool:  # type: ignore
         if not isinstance(member, enum.Enum):
             # Allow non-enums to match against member values.
             return any(x.value == member for x in cls)  # type: ignore
