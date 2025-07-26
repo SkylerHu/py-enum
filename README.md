@@ -3,14 +3,13 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/py-enum)](https://pypi.org/project/py-enum/)
 [![GitHub Actions Workflow Status](https://github.com/SkylerHu/py-enum/actions/workflows/pre-commit.yml/badge.svg?branch=master)](https://github.com/SkylerHu/py-enum)
 [![GitHub Actions Workflow Status](https://github.com/SkylerHu/py-enum/actions/workflows/test-py3.yml/badge.svg?branch=master)](https://github.com/SkylerHu/py-enum)
-[![GitHub Actions Workflow Status](https://github.com/SkylerHu/py-enum/actions/workflows/test-py27.yml/badge.svg?branch=master)](https://github.com/SkylerHu/py-enum)
 [![Coveralls](https://img.shields.io/coverallsCoverage/github/SkylerHu/py-enum?branch=master)](https://github.com/SkylerHu/py-enum)
 [![PyPI - Wheel](https://img.shields.io/pypi/wheel/py-enum)](https://github.com/SkylerHu/py-enum)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/py-enum)](https://github.com/SkylerHu/py-enum)
 [![PyPI - Implementation](https://img.shields.io/pypi/implementation/py-enum)](https://github.com/SkylerHu/py-enum)
 [![GitHub License](https://img.shields.io/github/license/SkylerHu/py-enum)](https://github.com/SkylerHu/py-enum)
 
-A python enum module for python3 and django choices fields.
+A python ChoiceEnum module for python3.
 
 通过改造 Django `models.enums.Choices` 实现类 `ChoiceEnum`，在非Django框架中也可以定义 `value`-`label` 形式的枚举，例如：
 - argparse使用 `add_argument` 的参数 `choices`；
@@ -54,17 +53,18 @@ class Status(ChoiceEnum):
 - `直接遍历枚举类`，这是能够作为Choices Enum的关键
 
 ```python
-print(Color.RED)  # Color.RED
-print(Color.RED.value)  # 1
+Color.RED  # Color.RED
+Color.RED.value  # 1
 type(Color.RED)  # <enum 'Color'>
+str(Color.RED)  # (1, 红色)
 len(colors) == 3  # true
 Color.RED.value in Color  # true
 1 in Color  # true
 0 not in Color  # true
 Color.values  # [1, 2, 3]
-Color.names  # ["RED", "GREEN", "BLUE"]
-Color.labels  # ["红色", "绿色", "蓝色"]
-Color.choices  # [(1, "红色"), (2, "绿色"), (3, "蓝色")]
+Color.names  # ['RED', 'GREEN', 'BLUE']
+Color.labels  # ['红色', '绿色', '蓝色']
+Color.choices  # [(1, '红色'), (2, '绿色'), (3, '蓝色')]
 
 Color.get_label(Color.RED)  # '红色'
 Color.get_extra(Color.BLUE)  # {'value': 'blue'}
@@ -104,8 +104,8 @@ import argparse
 
 parser = argparse.ArgumentParser(description='test ChoiceEnum use in argparse.')
 parser.add_argument('--color', type=int, choices=Color, required=True)
-args = parser.parse_args(['--color', str(Color.RED)])
-# args.color == Color.RED
+args = parser.parse_args(['--color', str(Color.RED.value)])
+# args.color == Color.RED.value
 ```
 
 ### 2.5 在Django中使用
