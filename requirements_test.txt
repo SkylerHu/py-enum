@@ -1,4 +1,4 @@
-# test 不限制版本，不同python版本就安装最高版本
-pytest
-pytest-cov
-pytest-django
+pytest==8.4.1
+pytest-env==1.1.5
+pytest-cov==6.2.1
+pytest-django==4.11.1

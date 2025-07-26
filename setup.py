@@ -5,13 +5,16 @@ import re
 from setuptools import setup, find_packages
 
 
-def read(file_name):
+def read(file_name: str) -> str:
     with open(file_name, "r") as f:
         content = f.read()
     return content
 
 
-version = re.search("__version__ = ['\"]([^'\"]+)['\"]", read("py_enum/__init__.py")).group(1)
+version_match = re.search(r"__version__ = ['\"]([^'\"]+)['\"]", read("py_enum/__init__.py"))
+if not version_match:
+    raise RuntimeError("Cannot find __version__ in py_enum/__init__.py")
+version = version_match.group(1)
 
 read_me = read("README.md")
 # 替换文档的相对路径为绝对路径地址
@@ -33,15 +36,12 @@ setup(
     include_package_data=True,
     zip_safe=False,
     platforms="any",
-    install_requires=[
-        "six>=1.12.0",
-    ],
-    python_requires=">=2.7",
+    install_requires=[],
+    python_requires=">=3.6",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
     ],
 )

@@ -1,8 +1,3 @@
-exclude: >
-    (?x)^(
-        .*/migrations/.*|  # auto-generated code from third party project
-        .*settings.*\.py|  # python settings
-    )$
 default_language_version:
     python: python3.9
 repos:
@@ -26,6 +21,12 @@ repos:
     hooks:
     -   id: flake8
         args: ['--max-line-length', '120']
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.16.1
+    hooks:
+    -   id: mypy
+        args: ['--disallow-untyped-defs', '--ignore-missing-imports']
+        additional_dependencies: [tokenize-rt==3.2.0]
 -   repo: https://github.com/pre-commit/pre-commit.git
     rev: v2.6.0
     hooks:

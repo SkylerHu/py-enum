@@ -11,10 +11,10 @@ def colors():
 
 
 @pytest.fixture
-def order_colors():
-    from tests.app.enums import OrderColor
+def color_extra():
+    from tests.app.enums import ColorExtra
 
-    return OrderColor
+    return ColorExtra
 
 
 @pytest.fixture

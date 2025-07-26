@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # coding=utf-8
-import six
-import json
 import pytest
 import argparse
 
@@ -11,8 +9,8 @@ from py_enum import ChoiceEnum, unique
 
 
 def test_enum_value(colors, status):
-    assert colors.RED == 1
-    assert status.CLOSED == "closed"
+    assert colors.RED.value == 1
+    assert status.CLOSED.value == "closed"
 
 
 def test_enum_len(colors):
@@ -22,7 +20,7 @@ def test_enum_len(colors):
 
 
 def test_value_name(colors):
-    member = colors(colors.RED)
+    member = colors(colors.RED.value)
     assert member.value == 1
     assert member.name == "RED"
     assert member.label == "红色"
@@ -34,7 +32,7 @@ def test_value_name(colors):
 
 def test_changing_member(colors):
     with pytest.raises(AttributeError):
-        colors.RED = 4
+        colors.RED.value = 4
 
 
 def test_attribute_deletion(colors):
@@ -44,7 +42,7 @@ def test_attribute_deletion(colors):
 
 
 def test_invalid_names():
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
 
         class Wrong(ChoiceEnum):
             mro = (1, 2)
@@ -54,17 +52,22 @@ def test_invalid_names():
         class Wrong2(ChoiceEnum):
             test = (1, 2)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
 
         class Wrong3(ChoiceEnum):
             test = 1
 
+    with pytest.raises(ValueError):
+
+        class Wrong4(ChoiceEnum):
+            test = (1,)
+
 
 def test_contains(colors, status):
-    assert colors.RED in colors
+    assert colors.RED.value in colors
     assert 0 not in colors
     assert status.CLOSED in status
-    assert colors(colors.RED) in colors
+    assert colors(colors.RED.value) in colors
 
 
 def test_enum_with_value_name_label():
@@ -74,21 +77,12 @@ def test_enum_with_value_name_label():
         label = (3, "label-label")
         option = (4, "label-option")
 
-    assert type(Huh.name) == int
+    assert isinstance(Huh.name.value, int)
     member = Huh(1)
     assert member.name == "name"
     assert member.value == 1
     assert member.label == "label-name"
     assert Huh.get_label(Huh.name) == "label-name"
-
-    assert Huh.option == 4
-    assert member.option == (1, "label-name")
-
-
-def test_getnewargs(colors):
-    value, label = colors(colors.RED).__getnewargs__()
-    assert value == colors.RED
-    assert label == colors.get_label(value)
 
 
 def test_pickle_enum(status):
@@ -113,24 +107,20 @@ def test_no_such_enum_member(colors):
         colors["GREY"]
 
 
-def test_order_members(colors, order_colors):
+def test_order_members(colors):
     _colors = colors
-    if six.PY2:
-        _colors = order_colors
-    else:
-        with pytest.raises(TypeError):
-            # python3定义了排序，属性顺序必须一致
-            class Color(ChoiceEnum):
-                _order_ = "RED BLUE GREEN"
-                RED = (1, "红色")
-                GREEN = (2, "绿色")
-                BLUE = (3, "蓝色")
+    with pytest.raises(TypeError):
+        # python3定义了排序，属性顺序必须一致
+        class Color(ChoiceEnum):
+            _order_ = "RED BLUE GREEN"
+            RED = (1, "红色")
+            GREEN = (2, "绿色")
+            BLUE = (3, "蓝色")
 
-    lst = [_colors.RED, _colors.GREEN, _colors.BLUE]
-    assert [v for v, _ in list(_colors)] == lst
-    assert [label for _, label in list(_colors)] == [_colors.get_label(v) for v in lst]
-    assert _colors(_colors.RED).option == (1, "红色")
-    assert list(_colors) == [_colors(v).option for v in lst]
+    lst = [_colors.RED.value, _colors.GREEN.value, _colors.BLUE.value]
+    assert _colors.values == lst
+    assert _colors.labels == [_colors.get_label(v) for v in lst]
+    assert _colors.names == [_colors(v).name for v in lst]
 
 
 def test_unique_clean():
@@ -149,19 +139,11 @@ def test_unique_clean():
             BLUE = (1, "蓝色")
 
 
-def test_check_type():
-    with pytest.raises(ValueError):
-
-        class Color(ChoiceEnum):
-            RED = 1
-
-
 def test_label(colors):
-    assert colors.get_label(colors.RED) == "红色"
+    assert colors.get_label(colors.RED.value) == "红色"
     _color = 0
     assert _color not in colors
-    assert colors.get_label(_color) is None
-    assert colors.get_label(_color, default_value="red") == "red"
+    assert colors.get_label(_color) == "0"
 
 
 def test_enum_extra():
@@ -183,16 +165,18 @@ def test_enum_extra():
     assert Color.get_extra(Color.YELLOW) == ("first", "second")
 
 
-def test_to_js_enum(order_colors):
-    items = order_colors.to_js_enum()
-    assert len(items) == len(order_colors)
+def test_to_js_enum(color_extra):
+    items = color_extra.to_js_enum()
+    assert len(items) == len(color_extra)
     expect_output = [
-        {"key": "RED", "value": 1, "label": "红色"},
-        {"key": "GREEN", "value": 2, "label": "绿色"},
-        {"key": "BLUE", "value": 3, "label": "蓝色", "extra": {"value": "blue"}},
+        {"key": "RED", "label": "红色", "value": 1},
+        {"key": "GREEN", "label": "绿色", "value": 2},
+        {"key": "BLUE", "label": "蓝色", "value": 3, "extra": {"value": "blue"}},
     ]
     assert items == expect_output
-    assert json.dumps(items) == json.dumps(expect_output)
+    assert color_extra.get_extra(color_extra.BLUE.value) == {"value": "blue"}
+    assert 4 not in color_extra
+    assert color_extra.get_extra(4) is None
 
 
 def test_use_in_argparse(colors):
@@ -208,16 +192,14 @@ def test_use_in_argparse(colors):
         parser.parse_args(["--color", str(test_c)])
 
     test_c = 1
-    assert test_c == colors.RED
+    assert test_c == colors.RED.value
     args = parser.parse_args(["--color", str(test_c)])
-    assert args.color is colors.RED
+    assert args.color is colors.RED.value
     assert args.color == test_c
 
 
-def test_cls_property(colors, order_colors):
+def test_cls_property(colors):
     _colors = colors
-    if six.PY2:
-        _colors = order_colors
     assert _colors.values == [1, 2, 3]
     assert _colors.labels == ["红色", "绿色", "蓝色"]
     assert _colors.choices == [(1, "红色"), (2, "绿色"), (3, "蓝色")]

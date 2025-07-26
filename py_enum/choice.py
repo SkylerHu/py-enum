@@ -1,130 +1,151 @@
 #!/usr/bin/env python
 # coding=utf-8
-import six
+import typing
 
-from .enum import Enum, EnumMeta
-from .utils import DynamicClassAttribute
+import enum
+from types import DynamicClassAttribute
 
 
 __all__ = [
     "ChoiceEnum",
 ]
 
+# 基类泛型
+P = typing.TypeVar("P", bound=typing.Type[enum.Enum])
 
-class _ChoiceType(object):
-
-    def __new__(cls, *args):
-        cls._check_value_type(args)
-        _args = args
-        self = object.__new__(cls)
-        self._value_ = args[0]
-        self._label_ = self._value_
-        self._extra = None
-        # _check_value_type 校验过了，长度一定满足要求
-        self._label_ = args[1]
-        if len(args) == 3:
-            self._extra = args[2]
-        elif len(args) > 3:
-            self._extra = args[2:]
-        self._args = _args
-        return self
-
-    def __getnewargs__(self):
-        """支持pickle"""
-        return self._args
-
-    @classmethod
-    def _check_value_type(cls, value):
-        # 在Enum中有处理，类型一定是tuple
-        if not isinstance(value, tuple):
-            raise TypeError("value should be a tuple, %r is a %s" % (value, type(value)))
-        if len(value) < 2:
-            raise ValueError(
-                "value should be a tuple, len(%r) = %d , len should be >= 2"
-                % (
-                    value,
-                    len(value),
-                )
-            )
-        if not isinstance(value[1], six.string_types):
-            raise TypeError("value[1] %r use for label, should be a string" % (value[1],))
+T = typing.TypeVar("T", bound=str)  # 用于value的类型
+E = typing.TypeVar("E", bound=typing.Optional[dict])  # 用于extra的类型
 
 
-class EnumChoiceMeta(EnumMeta):
+def _check_value_type(value: typing.Any) -> None:
+    # 在Enum中有处理，类型一定是tuple
+    if not isinstance(value, tuple):
+        raise TypeError(f"value should be a tuple, {value} is a {type(value)}")
+    if len(value) < 2:
+        raise ValueError(f"value should be a tuple, len({value}) = {len(value)} , len should be >= 2")
+    if not isinstance(value[1], str):
+        raise TypeError(f"value[1] {value[1]} use for label, should be a string")
 
-    def __contains__(cls, value):
-        if not isinstance(value, Enum):
+
+class EnumChoiceMeta(enum.EnumMeta):
+    """A metaclass for creating a enum choices."""
+
+    def __new__(metacls: type, classname: str, bases: tuple, classdict: dict, **kwds: typing.Any) -> typing.Type[P]:
+        labels = []
+        extras = []
+        # classdict 是 _EnumDict 有这个属性
+        for key in classdict._member_names:  # type: ignore
+            args = classdict[key]
+            _check_value_type(args)
+            value = args[0]
+            label = args[1]
+            extra = None
+            if len(args) == 3:
+                extra = args[2]
+            elif len(args) > 3:
+                extra = args[2:]
+
+            labels.append(label)
+            extras.append(extra)
+
+            # Use dict.__setitem__() to suppress defenses against double
+            # assignment in enum's classdict.
+            dict.__setitem__(classdict, key, value)
+
+        cls = super().__new__(metacls, classname, bases, classdict, **kwds)  # type: ignore
+
+        for member, label, extra in zip(cls.__members__.values(), labels, extras):
+            # 此处设置枚举的值，是在 ChoiceEnum中动态属性会获取
+            member._label_ = label
+            member._extra = extra
+
+        return enum.unique(cls)
+
+    # def __getitem__(cls: type, params: typing.Any) -> "EnumChoiceMeta":  # type: ignore
+    #     # 处理泛型类型参数，如 ChoiceEnum[int]
+    #     if not isinstance(params, tuple):
+    #         params = (params,)
+
+    #     # 检查是否是类型参数
+    #     if all(isinstance(p, type) or p is None or hasattr(p, "__origin__") for p in params):
+    #         # 创建一个新的泛型类型
+    #         return typing._GenericAlias(cls, params)
+
+    #     # 如果不是类型参数，则按照原来的逻辑处理（查找枚举成员）
+    #     return super().__getitem__(params)
+
+    def __contains__(cls, member: typing.Union[enum.Enum, T]) -> bool:  # type: ignore
+        if not isinstance(member, enum.Enum):
             # Allow non-enums to match against member values.
-            return value in cls._value2member_map_
-        return super(EnumChoiceMeta, cls).__contains__(value)
-
-    def __getattribute__(cls, name):
-        attr = super(EnumChoiceMeta, cls).__getattribute__(name)
-        if name == "_member_names_":
-            pass
-        elif name in cls._member_names_:
-            attr = attr.value
-        return attr
-
-    def __getattr__(cls, name):
-        return super(EnumChoiceMeta, cls).__getattr__(name).value
-
-    def __iter__(cls):
-        return (cls._member_map_[name].option for name in cls._member_names_)
+            return any(x.value == member for x in cls)  # type: ignore
+        return super().__contains__(member)
 
     @property
-    def choices(cls):
-        return list(cls)
+    def choices(cls: "EnumChoiceMeta") -> list[tuple[T, str]]:
+        return [(member.value, member.label) for member in cls]  # type: ignore
 
     @property
-    def values(cls):
-        return [value for value, _ in cls]
+    def names(cls: "EnumChoiceMeta") -> list[str]:
+        return [member.name for member in cls]  # type: ignore
 
     @property
-    def labels(cls):
-        return [label for _, label in cls]
+    def labels(cls: "EnumChoiceMeta") -> list[str]:
+        return [label for _, label in cls.choices]  # type: ignore
+
+    @property
+    def values(cls: "EnumChoiceMeta") -> list[T]:
+        return [value for value, _ in cls.choices]  # type: ignore
+
+    def get_label(cls, value: T) -> str:
+        try:
+            return cls(value).label  # type: ignore
+        except ValueError:
+            return str(value)
+
+    def get_extra(cls, value: T) -> typing.Optional[E]:
+        try:
+            return cls(value).extra  # type: ignore
+        except ValueError:
+            return None
+
+    def to_js_enum(cls: "EnumChoiceMeta") -> list[dict]:
+        """js-enumerate 前端枚举lib需要的数据结构"""
+        arr = []
+        for member in cls:  # type: ignore
+            item = {
+                "key": member.name,
+                "value": member.value,
+                "label": member.label,
+            }
+            if member.extra is not None:
+                item["extra"] = member.extra
+            arr.append(item)
+        return arr
 
 
-class ChoiceEnum(six.with_metaclass(EnumChoiceMeta, _ChoiceType, Enum)):
+class ChoiceEnum(typing.Generic[T, E], enum.Enum, metaclass=EnumChoiceMeta):  # type: ignore
+    _value_: T
+    _label_: str
+    _extra: E
 
     @DynamicClassAttribute
-    def label(self):
+    def value(self) -> T:
+        """The value of the Enum member."""
+        return self._value_
+
+    @DynamicClassAttribute
+    def label(self) -> str:
         """枚举值对应的显示文案"""
         return self._label_
 
     @DynamicClassAttribute
-    def extra(self):
+    def extra(self) -> E:
         """枚举 具体 值"""
         return self._extra
 
-    @DynamicClassAttribute
-    def option(self):
-        """用于choices枚举及展示使用"""
-        return self._value_, self._label_
+    def __str__(self) -> str:
+        return str(self.value)
 
-    @classmethod
-    def get_label(cls, key, default_value=None):
-        try:
-            return cls._value2member_map_[key].label
-        except KeyError:
-            return default_value
-
-    @classmethod
-    def get_extra(cls, key):
-        return cls._value2member_map_[key]._extra
-
-    @classmethod
-    def to_js_enum(cls):
-        """js-enumerate 前端枚举lib需要的数据结构"""
-        arr = []
-        for key in cls._member_names_:
-            member = cls[key]
-            item = {
-                "key": key,
-                "value": member._value_,
-                "label": member._label_,
-            }
-            if member._extra is not None:
-                item["extra"] = member._extra
-            arr.append(item)
-        return arr
+    # A similar format was proposed for Python 3.10.
+    def __repr__(self) -> str:
+        return f"{self.__class__.__qualname__}.{self._name_}"

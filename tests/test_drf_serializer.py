@@ -9,7 +9,7 @@ from tests.app.serializers import ColorSerializer
 
 @pytest.mark.django_db
 def test_validate(status):
-    s = ColorSerializer(data={"status": status.CLOSED})
+    s = ColorSerializer(data={"status": status.CLOSED.value})
     assert s.is_valid() is True
     instance = s.save()
     assert isinstance(instance, ColorModel)
