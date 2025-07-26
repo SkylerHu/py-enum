@@ -131,7 +131,7 @@ class ChoiceEnum(typing.Generic[T, E], enum.Enum, metaclass=EnumChoiceMeta):  # 
         return self._extra
 
     def __str__(self) -> str:
-        return str(self.value)
+        return f"({self.value}, {self.label})"
 
     # A similar format was proposed for Python 3.10.
     def __repr__(self) -> str:

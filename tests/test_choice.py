@@ -130,6 +130,7 @@ def test_label() -> None:
     _color = 0
     assert _color not in Color
     assert Color.get_label(_color) == "0"
+    assert str(Color.RED) == "(1, 红色)"
 
 
 def test_enum_extra() -> None:
