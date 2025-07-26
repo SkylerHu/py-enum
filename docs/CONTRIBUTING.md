@@ -2,7 +2,7 @@
 主要是给开发者阅读，描述开发前后需要注意的一些事项。
 
 # 开发环境
-- `> python2.7 or > python3.6`的python环境
+- `> python3.6`的python环境
 - 新建虚拟环境`.env`在项目根目录下，`source .env/bin/activate`
   - virtualenv --python=python2 .env
   - pyvenv3 .env

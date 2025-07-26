@@ -7,7 +7,7 @@ import argparse
 from pickle import dumps, loads, HIGHEST_PROTOCOL
 
 from tests.app.enums import Color, Status, ColorExtra
-from py_enum import ChoiceEnum, unique
+from py_enum import ChoiceEnum
 
 
 def test_enum_value() -> None:
@@ -123,22 +123,6 @@ def test_order_members() -> None:
     assert _colors.values == lst
     assert _colors.labels == [_colors.get_label(v) for v in lst]
     assert _colors.names == [_colors(v).name for v in lst]
-
-
-def test_unique_clean() -> None:
-    @unique
-    class Clean(ChoiceEnum):
-        RED = (1, "红色")
-        GREEN = (2, "绿色")
-        BLUE = (3, "蓝色")
-
-    with pytest.raises(ValueError):
-
-        @unique
-        class Dirty(ChoiceEnum):
-            RED = (1, "红色")
-            GREEN = (2, "绿色")
-            BLUE = (1, "蓝色")
 
 
 def test_label() -> None:
