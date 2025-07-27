@@ -74,6 +74,18 @@ class EnumChoiceMeta(EnumMeta):
     def choices(cls):
         return [(member.value, member.label) for member in cls]
 
+    def get_label(cls, key):
+        try:
+            return cls(key).label
+        except ValueError:
+            return None
+
+    def get_extra(cls, key):
+        try:
+            return cls(key).extra
+        except ValueError:
+            return None
+
     def to_js_enum(cls):
         """js-enumerate 前端枚举lib需要的数据结构"""
         arr = []
@@ -105,14 +117,3 @@ class ChoiceEnum(six.with_metaclass(EnumChoiceMeta, _ChoiceType, Enum)):
     def option(self):
         """用于choices枚举及展示使用"""
         return self._value_, self._label_
-
-    @classmethod
-    def get_label(cls, key, default_value=None):
-        try:
-            return cls._value2member_map_[key].label
-        except KeyError:
-            return default_value
-
-    @classmethod
-    def get_extra(cls, key):
-        return cls._value2member_map_[key]._extra

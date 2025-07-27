@@ -166,7 +166,6 @@ def test_label(colors):
     _color = 0
     assert _color not in colors
     assert colors.get_label(_color) is None
-    assert colors.get_label(_color, default_value="red") == "red"
 
 
 def test_enum_extra():
@@ -186,6 +185,9 @@ def test_enum_extra():
     assert Color.get_extra(Color.BLACK.value)["value"] == "grey"
     assert Color.get_extra(Color.WHITE.value) == (1, 2)
     assert Color.get_extra(Color.YELLOW.value) == ("first", "second")
+    _color = 0
+    assert _color not in Color
+    assert Color.get_extra(_color) is None
 
 
 def test_to_js_enum(order_colors):
