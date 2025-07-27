@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
-import six
-
-from .enum import Enum, EnumMeta
-from .utils import DynamicClassAttribute
+from enum import Enum, EnumMeta
+from types import DynamicClassAttribute
 
 
 __all__ = [
@@ -35,19 +33,10 @@ class _ChoiceType(object):
 
     @classmethod
     def _check_value_type(cls, value):
-        # 在Enum中有处理，类型一定是tuple
-        if not isinstance(value, tuple):
-            raise TypeError("value should be a tuple, %r is a %s" % (value, type(value)))
         if len(value) < 2:
-            raise ValueError(
-                "value should be a tuple, len(%r) = %d , len should be >= 2"
-                % (
-                    value,
-                    len(value),
-                )
-            )
-        if not isinstance(value[1], six.string_types):
-            raise TypeError("value[1] %r use for label, should be a string" % (value[1],))
+            raise ValueError(f"value should be a tuple, len({value}) = {len(value)} , len should be >= 2")
+        if not isinstance(value[1], str):
+            raise TypeError(f"value[1] {value[1]} use for label, should be a string")
 
 
 class EnumChoiceMeta(EnumMeta):
@@ -101,7 +90,7 @@ class EnumChoiceMeta(EnumMeta):
         return arr
 
 
-class ChoiceEnum(six.with_metaclass(EnumChoiceMeta, _ChoiceType, Enum)):
+class ChoiceEnum(_ChoiceType, Enum, metaclass=EnumChoiceMeta):
 
     @DynamicClassAttribute
     def label(self):
@@ -120,3 +109,7 @@ class ChoiceEnum(six.with_metaclass(EnumChoiceMeta, _ChoiceType, Enum)):
 
     def __str__(self):
         return str(self.option)
+
+    # A similar format was proposed for Python 3.10.
+    def __repr__(self):
+        return f"{self.__class__.__qualname__}.{self._name_}"

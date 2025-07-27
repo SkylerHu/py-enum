@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding=utf-8
-import six
 import pytest
 
 from tests.app.enums import Status
@@ -20,7 +19,4 @@ def test_validate():
 
     s = ColorSerializer(data={"status": _status})
     assert s.is_valid() is False
-    if six.PY2:
-        assert "valid choice" in s.errors["status"][0]
-    else:
-        assert s.errors["status"][0].code == "invalid_choice"
+    assert s.errors["status"][0].code == "invalid_choice"

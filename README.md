@@ -3,16 +3,15 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/py-enum)](https://github.com/SkylerHu/py-enum)
 [![GitHub Actions Workflow Status](https://github.com/SkylerHu/py-enum/actions/workflows/pre-commit.yml/badge.svg?branch=master)](https://github.com/SkylerHu/py-enum)
 [![GitHub Actions Workflow Status](https://github.com/SkylerHu/py-enum/actions/workflows/test-py3.yml/badge.svg?branch=master)](https://github.com/SkylerHu/py-enum)
-[![GitHub Actions Workflow Status](https://github.com/SkylerHu/py-enum/actions/workflows/test-py27.yml/badge.svg?branch=master)](https://github.com/SkylerHu/py-enum)
 [![Coveralls](https://img.shields.io/coverallsCoverage/github/SkylerHu/py-enum?branch=master)](https://github.com/SkylerHu/py-enum)
 [![PyPI - Wheel](https://img.shields.io/pypi/wheel/py-enum)](https://github.com/SkylerHu/py-enum)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/py-enum)](https://github.com/SkylerHu/py-enum)
 [![PyPI - Implementation](https://img.shields.io/pypi/implementation/py-enum)](https://github.com/SkylerHu/py-enum)
 [![GitHub License](https://img.shields.io/github/license/SkylerHu/py-enum)](https://github.com/SkylerHu/py-enum)
 
-A python enum module for python2.7 and django choices fields.
+A python ChoiceEnum module for python3.
 
-通过改造python3中的enum.py而来，增加对python2的支持，并新增类`ChoiceEnum`用于以下场景：
+继承原生的 ·enum.Enum· 而来，扩展类`ChoiceEnum`用于以下场景：
 - argparse使用 `add_argument` 的参数 `choices`
 - Django中 `models.CharField` 的参数 `choices`
 - Django REST framework `ChoiceField` 的参数 `choices`
@@ -30,7 +29,7 @@ A python enum module for python2.7 and django choices fields.
 
 ```python
 # 导入
-from py_enum import ChoiceEnum, unique
+from py_enum import ChoiceEnum
 
 # 定义
 class Color(ChoiceEnum):
@@ -38,7 +37,6 @@ class Color(ChoiceEnum):
     GREEN = (2, '绿色')
     BLUE = (3, '蓝色', {'value': 'blue'})
 
-@unique
 class Status(ChoiceEnum):
     PROCESSING = ('processing', '处理中')
     APPROVED = ('approved', '已审批')
@@ -133,30 +131,7 @@ s = ColorSerializer(data={'status': 0})
 assert s.is_valid() is False  # 值不在枚举定义范围内，校验不通过
 ```
 
-### 2.7 类Enum和unique
-和python3中原生的Enum并无太大区别，具体可以参考[官方原生开发文档](https://docs.python.org/3.6/library/enum.html)
-
-```python
-from py_enum import Enum, unique
-
-@unique
-class Season(Enum):
-    SPRING = 1
-    SUMMER = 2
-    AUTUMN = 3
-    WINTER = 4
-```
-
 ## 3. 对比
-- `Enum`可以在`Python2`中使用，但需要注意的是：
-  - members无序，属性定义时申明的顺序和直接遍历枚举对象时并不一定一致；需通过`_order_`来定义member的顺序
-  - python2没有定义__bool__，所以不能直接用class类或者member来做逻辑判断
-  - 执行 Season.SPRING > Season.SUMMER 不会报错，但结果也不符合预期
-    - py3执行会raise TypeError, 不允许比较
-    - 但是ChoiceEnum是直接取值，可以用来做比较运算
-  - 枚举类定义时，无法识别多个相同的Key
-  - 在多继承方面会受限
-- `Enum`和Python3原生enum.py对比，保留了`Enum`类和`unique`方法
 - `ChoiceEnum`和Django的 models.Choices 的优势在于低版本Django也能使用，且普通Python项目脚本也能使用
 - 新增了额外的特性
   - 额外多出了`ChoiceEnum.extra`的用法，对不同枚举成员做映射配置相关场景可以使用

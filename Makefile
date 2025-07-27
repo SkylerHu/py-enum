@@ -69,7 +69,7 @@ release: clean-build ## package and upload a release
 	${PYTHON} setup.py sdist upload -r pypi
 
 dist: clean-build ## builds source
-	${PYTHON} setup.py sdist
+	${PYTHON} setup.py sdist bdist_wheel
 	ls -l dist
 	${PYTHON} -m twine check dist/*.tar.gz
 

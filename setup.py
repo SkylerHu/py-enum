@@ -33,15 +33,12 @@ setup(
     include_package_data=True,
     zip_safe=False,
     platforms="any",
-    install_requires=[
-        "six>=1.12.0",
-    ],
-    python_requires=">=2.7",
+    install_requires=[],
+    python_requires=">=3.6",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
     ],
 )
