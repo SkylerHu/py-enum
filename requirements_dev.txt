@@ -1,5 +1,6 @@
 pip==20.3.4
 ipython==8.18.1
+mypy==0.971
 # test
 tox==3.28.0
 -r requirements_test.txt

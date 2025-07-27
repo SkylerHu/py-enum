@@ -44,25 +44,31 @@ def test_attribute_deletion():
 
 
 def test_invalid_names():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Invalid enum member name: mro"):
 
         class Wrong(ChoiceEnum):
             mro = (1, 2)
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="use for label, should be a string"):
 
         class Wrong2(ChoiceEnum):
             test = (1, 2)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="value should be a tuple"):
 
         class Wrong3(ChoiceEnum):
             test = 1
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="len should be >= 2"):
 
         class Wrong4(ChoiceEnum):
             test = (1,)
+
+    with pytest.raises(ValueError, match="duplicate values found in"):
+
+        class Wrong5(ChoiceEnum):
+            V1 = (1, "label-name")
+            V2 = (1, "label-value")
 
 
 def test_contains():
