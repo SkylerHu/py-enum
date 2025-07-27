@@ -55,34 +55,38 @@ class EnumChoiceMeta(EnumMeta):
     def __contains__(cls, value):
         if not isinstance(value, Enum):
             # Allow non-enums to match against member values.
-            return value in cls._value2member_map_
+            return any(x.value == value for x in cls)
         return super(EnumChoiceMeta, cls).__contains__(value)
 
-    def __getattribute__(cls, name):
-        attr = super(EnumChoiceMeta, cls).__getattribute__(name)
-        if name == "_member_names_":
-            pass
-        elif name in cls._member_names_:
-            attr = attr.value
-        return attr
-
-    def __getattr__(cls, name):
-        return super(EnumChoiceMeta, cls).__getattr__(name).value
-
-    def __iter__(cls):
-        return (cls._member_map_[name].option for name in cls._member_names_)
-
     @property
-    def choices(cls):
-        return list(cls)
+    def names(cls):
+        return [member.name for member in cls]
 
     @property
     def values(cls):
-        return [value for value, _ in cls]
+        return [member.value for member in cls]
 
     @property
     def labels(cls):
-        return [label for _, label in cls]
+        return [member.label for member in cls]
+
+    @property
+    def choices(cls):
+        return [(member.value, member.label) for member in cls]
+
+    def to_js_enum(cls):
+        """js-enumerate 前端枚举lib需要的数据结构"""
+        arr = []
+        for member in cls:
+            item = {
+                "key": member.name,
+                "value": member.value,
+                "label": member.label,
+            }
+            if member.extra is not None:
+                item["extra"] = member.extra
+            arr.append(item)
+        return arr
 
 
 class ChoiceEnum(six.with_metaclass(EnumChoiceMeta, _ChoiceType, Enum)):
@@ -112,19 +116,3 @@ class ChoiceEnum(six.with_metaclass(EnumChoiceMeta, _ChoiceType, Enum)):
     @classmethod
     def get_extra(cls, key):
         return cls._value2member_map_[key]._extra
-
-    @classmethod
-    def to_js_enum(cls):
-        """js-enumerate 前端枚举lib需要的数据结构"""
-        arr = []
-        for key in cls._member_names_:
-            member = cls[key]
-            item = {
-                "key": key,
-                "value": member._value_,
-                "label": member._label_,
-            }
-            if member._extra is not None:
-                item["extra"] = member._extra
-            arr.append(item)
-        return arr

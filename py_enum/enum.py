@@ -67,7 +67,7 @@ class _EnumDict(dict):
         """
         if _is_sunder(key):
             if key not in ("_order_", "_create_pseudo_member_", "_ignore_", "_missing_", "_generate_next_value_"):
-                raise ValueError("_names_ are reserved for future Enum use")
+                raise ValueError("_names_ [{}] are reserved for future Enum use".format(key))
             if key == "_ignore_":
                 if isinstance(value, str):
                     value = value.replace(",", " ").split()

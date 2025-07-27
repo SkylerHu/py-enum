@@ -16,4 +16,4 @@ class ColorSerializer(serializers.ModelSerializer):
 
 class ApiSerializer(serializers.BaseSerializer):
 
-    color = serializers.ChoiceField(help_text="选择颜色", choices=Color)
+    color = serializers.ChoiceField(help_text="选择颜色", choices=Color.choices)
