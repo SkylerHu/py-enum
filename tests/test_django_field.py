@@ -4,36 +4,38 @@ import pytest
 
 from tests.app.models import ColorModel, ColorForm
 
+from tests.app.enums import Color, Status
+
 
 @pytest.mark.django_db
-def test_create(colors, status):
+def test_create():
     instance = ColorModel.objects.create()
-    assert instance.color == colors.RED.value
-    assert instance.status == status.PROCESSING.value
+    assert instance.color == Color.RED.value
+    assert instance.status == Status.PROCESSING.value
 
 
 @pytest.mark.django_db
-def test_save_and_filter(colors):
+def test_save_and_filter():
     instance = ColorModel()
-    instance.color = colors.BLUE.value
+    instance.color = Color.BLUE.value
     instance.save()
 
-    assert instance.color == colors.BLUE.value
+    assert instance.color == Color.BLUE.value
 
     instance2 = ColorModel.objects.get(pk=instance.pk)
-    assert instance2.color == colors.BLUE.value
+    assert instance2.color == Color.BLUE.value
 
-    instance3 = ColorModel.objects.filter(color=colors.BLUE.value).first()
+    instance3 = ColorModel.objects.filter(color=Color.BLUE.value).first()
     assert instance3.pk == instance.pk
 
 
 @pytest.mark.django_db
-def test_check_fail(colors):
-    form = ColorForm(data={"color": colors.BLUE.value})
+def test_check_fail():
+    form = ColorForm(data={"color": Color.BLUE.value})
     assert form.is_valid() is True
 
     _color = -1
-    assert _color not in colors
+    assert _color not in Color
 
     form = ColorForm(data={"color": _color})
     assert form.is_valid() is False
