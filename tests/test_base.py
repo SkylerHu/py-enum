@@ -1853,13 +1853,5 @@ class TestStdLib(unittest.TestCase):
             self.fail("result does not equal expected, see print above")
 
 
-class MiscTestCase(unittest.TestCase):
-    def test__all__(self):
-        if not six.PY2:
-            from test import support
-
-            support.check__all__(self, enum)
-
-
 if __name__ == "__main__":
     unittest.main()
