@@ -21,6 +21,7 @@ jobs:
     strategy:
       matrix:
         python: ["3.6", "3.9", "3.10"]
+      fail-fast: true
 
     steps:
       - uses: actions/checkout@v4
