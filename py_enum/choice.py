@@ -118,5 +118,5 @@ class ChoiceEnum(six.with_metaclass(EnumChoiceMeta, _ChoiceType, Enum)):
         """用于choices枚举及展示使用"""
         return self._value_, self._label_
 
-    def __str__(self) -> str:
-        return f"({self.value}, {self.label})"
+    def __str__(self):
+        return str(self.option)
