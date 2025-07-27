@@ -10,12 +10,6 @@ __all__ = [
     "ChoiceEnum",
 ]
 
-# 基类泛型
-P = typing.TypeVar("P", bound=typing.Type[enum.Enum])
-
-T = typing.TypeVar("T", bound=str)  # 用于value的类型
-E = typing.TypeVar("E", bound=typing.Optional[dict])  # 用于extra的类型
-
 
 def _check_value_type(value: typing.Any) -> None:
     # 在Enum中有处理，类型一定是tuple
@@ -30,7 +24,7 @@ def _check_value_type(value: typing.Any) -> None:
 class EnumChoiceMeta(enum.EnumMeta):
     """A metaclass for creating a enum choices."""
 
-    def __new__(metacls: type, classname: str, bases: tuple, classdict: dict, **kwds: typing.Any) -> typing.Type[P]:
+    def __new__(metacls: type, classname: str, bases: tuple, classdict: dict, **kwds: typing.Any) -> typing.Type:
         labels = []
         extras = []
         # classdict 是 _EnumDict 有这个属性
@@ -68,34 +62,34 @@ class EnumChoiceMeta(enum.EnumMeta):
         return super().__contains__(member)
 
     @property
-    def choices(cls: "EnumChoiceMeta") -> list[tuple[T, str]]:
+    def choices(cls: "EnumChoiceMeta") -> typing.List[typing.Tuple[typing.Any, str]]:
         return [(member.value, member.label) for member in cls]  # type: ignore
 
     @property
-    def names(cls: "EnumChoiceMeta") -> list[str]:
+    def names(cls: "EnumChoiceMeta") -> typing.List[str]:
         return [member.name for member in cls]  # type: ignore
 
     @property
-    def labels(cls: "EnumChoiceMeta") -> list[str]:
+    def labels(cls: "EnumChoiceMeta") -> typing.List[str]:
         return [label for _, label in cls.choices]  # type: ignore
 
     @property
-    def values(cls: "EnumChoiceMeta") -> list[T]:
+    def values(cls: "EnumChoiceMeta") -> typing.List[typing.Any]:
         return [value for value, _ in cls.choices]  # type: ignore
 
-    def get_label(cls, value: T) -> str:
+    def get_label(cls, value: typing.Any) -> str:
         try:
             return cls(value).label  # type: ignore
         except ValueError:
             return str(value)
 
-    def get_extra(cls, value: T) -> typing.Optional[E]:
+    def get_extra(cls, value: typing.Any) -> typing.Optional[typing.Any]:
         try:
             return cls(value).extra  # type: ignore
         except ValueError:
             return None
 
-    def to_js_enum(cls: "EnumChoiceMeta") -> list[dict]:
+    def to_js_enum(cls: "EnumChoiceMeta") -> typing.List[typing.Dict]:
         """js-enumerate 前端枚举lib需要的数据结构"""
         arr = []
         for member in cls:  # type: ignore
@@ -110,13 +104,13 @@ class EnumChoiceMeta(enum.EnumMeta):
         return arr
 
 
-class ChoiceEnum(typing.Generic[T, E], enum.Enum, metaclass=EnumChoiceMeta):  # type: ignore
-    _value_: T
+class ChoiceEnum(enum.Enum, metaclass=EnumChoiceMeta):
+    _value_: typing.Any
     _label_: str
-    _extra: E
+    _extra: typing.Any
 
     @DynamicClassAttribute
-    def value(self) -> T:
+    def value(self) -> typing.Any:
         """The value of the Enum member."""
         return self._value_
 
@@ -126,7 +120,7 @@ class ChoiceEnum(typing.Generic[T, E], enum.Enum, metaclass=EnumChoiceMeta):  # 
         return self._label_
 
     @DynamicClassAttribute
-    def extra(self) -> E:
+    def extra(self) -> typing.Any:
         """枚举 具体 值"""
         return self._extra
 
