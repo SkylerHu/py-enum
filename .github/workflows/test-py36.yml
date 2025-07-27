@@ -1,4 +1,4 @@
-name: test for py27
+name: test for py36
 
 on:
   push:
