@@ -90,6 +90,7 @@ def test_enum_with_value_name_label():
 
     assert Huh.option.value == 4
     assert member.option == (1, "label-name")
+    assert str(member) == "(1, label-name)"
 
 
 def test_getnewargs():
