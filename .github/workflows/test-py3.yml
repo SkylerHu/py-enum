@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["3.6", "3.9", "3.10"]
+        python: ["3.9", "3.11"]
       fail-fast: true
 
     steps:
@@ -40,7 +40,7 @@ jobs:
           for e in `tox -l | grep "$pyFlag-" | grep -v lint`; do tox -e $e; done
 
       - name: Upload coverage
-        if: ${{ matrix.python == '3.10' }}
+        if: ${{ matrix.python == '3.9' }}
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run:

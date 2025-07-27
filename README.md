@@ -47,9 +47,12 @@ class Status(ChoiceEnum):
 定义如上，按照`Key = (value, label, extra)`的形式进行定义，value定义的值；label是对值的描述；第三个参数是extra，额外信息，可以任意类型。
 
 ### 2.2 基础用法
-- `直接根据Key访问value值`，而并不是一个tuple，正是和原生Enum的区别
-- get_label方法
-- get_extra方法
+- `func` get_label(value)
+- `func` get_extra(value)
+- names
+- values
+- labels
+- choices
 - `直接遍历枚举类`，这是能够作为Choices Enum的关键
 
 ```python
