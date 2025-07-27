@@ -1,7 +1,6 @@
 exclude: >
     (?x)^(
-        .*/migrations/.*|  # auto-generated code from third party project
-        .*settings.*\.py|  # python settings
+        .pyi
     )$
 default_language_version:
     python: python3.9

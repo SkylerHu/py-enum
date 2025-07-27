@@ -47,14 +47,14 @@ def test_invalid_names():
     with pytest.raises(ValueError, match="Invalid enum member name: mro"):
 
         class Wrong(ChoiceEnum):
-            mro = (1, 2)
+            mro = (1, "2")
 
     with pytest.raises(TypeError, match="use for label, should be a string"):
 
         class Wrong2(ChoiceEnum):
             test = (1, 2)
 
-    with pytest.raises(ValueError, match="value should be a tuple"):
+    with pytest.raises(TypeError, match="value should be a tuple"):
 
         class Wrong3(ChoiceEnum):
             test = 1
@@ -156,13 +156,6 @@ def test_unique_clean():
             RED = (1, "红色")
             GREEN = (2, "绿色")
             BLUE = (1, "蓝色")
-
-
-def test_check_type():
-    with pytest.raises(ValueError):
-
-        class Color(ChoiceEnum):
-            RED = 1
 
 
 def test_label():
