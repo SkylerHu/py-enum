@@ -54,7 +54,7 @@ def test_invalid_names():
         class Wrong2(ChoiceEnum):
             test = (1, 2)
 
-    with pytest.raises(TypeError, match="value should be a tuple"):
+    with pytest.raises(ValueError, match="value should be a tuple"):
 
         class Wrong3(ChoiceEnum):
             test = 1

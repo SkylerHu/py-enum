@@ -10,45 +10,40 @@ __all__ = [
 
 
 def _check_value_type(value):
-    if not isinstance(value, tuple):
-        raise TypeError(f"value should be a tuple, value is {value}")
     if len(value) < 2:
         raise ValueError(f"value should be a tuple, len({value}) = {len(value)} , len should be >= 2")
     if not isinstance(value[1], str):
         raise TypeError(f"value[1] {value[1]} use for label, should be a string")
 
 
+class _ChoiceType(object):
+
+    def __new__(cls, *args):
+        _check_value_type(args)
+        _args = args
+        self = object.__new__(cls)
+        self._value_ = args[0]
+        self._label_ = self._value_
+        self._extra = None
+        # _check_value_type 校验过了，长度一定满足要求
+        self._label_ = args[1]
+        if len(args) == 3:
+            self._extra = args[2]
+        elif len(args) > 3:
+            self._extra = args[2:]
+        self._args = _args
+        return self
+
+    def __getnewargs__(self):
+        """支持pickle"""
+        return self._args
+
+
 class EnumChoiceMeta(EnumMeta):
 
     def __new__(metacls, classname, bases, classdict, **kwds):
-        labels = []
-        extras = []
-        # classdict 是 _EnumDict 有这个属性
-        for key in classdict._member_names:  # type: ignore
-            args = classdict[key]
-            _check_value_type(args)
-            value = args[0]
-            label = args[1]
-            extra = None
-            if len(args) == 3:
-                extra = args[2]
-            elif len(args) > 3:
-                extra = args[2:]
-
-            labels.append(label)
-            extras.append(extra)
-
-            # Use dict.__setitem__() to suppress defenses against double
-            # assignment in enum's classdict.
-            dict.__setitem__(classdict, key, value)
-
-        cls = super().__new__(metacls, classname, bases, classdict, **kwds)  # type: ignore
-
-        for member, label, extra in zip(cls.__members__.values(), labels, extras):
-            # 此处设置枚举的值，是在 ChoiceEnum中动态属性会获取
-            member._label_ = label
-            member._extra = extra
-
+        cls = super().__new__(metacls, classname, bases, classdict, **kwds)
+        # 确保唯一
         return unique(cls)
 
     def __contains__(cls, value):
@@ -100,12 +95,8 @@ class EnumChoiceMeta(EnumMeta):
         return arr
 
 
-class ChoiceEnum(Enum, metaclass=EnumChoiceMeta):
+class ChoiceEnum(_ChoiceType, Enum, metaclass=EnumChoiceMeta):
     """ChoiceEnum with proper type annotations for mypy support"""
-
-    def __getnewargs__(self):
-        """支持pickle"""
-        return (self._value_, self._label_, self._extra) if self._extra is not None else (self._value_, self._label_)
 
     @DynamicClassAttribute
     def value(self):
