@@ -11,7 +11,10 @@ def read(file_name):
     return content
 
 
-version = re.search("__version__ = ['\"]([^'\"]+)['\"]", read("py_enum/__init__.py")).group(1)
+version_match = re.search(r"__version__ = ['\"]([^'\"]+)['\"]", read("py_enum/__init__.py"))
+if version_match is None:
+    raise RuntimeError("Unable to find version string in py_enum/__init__.py")
+version = version_match.group(1)
 
 read_me = read("README.md")
 # 替换文档的相对路径为绝对路径地址
@@ -31,17 +34,15 @@ setup(
     packages=find_packages(exclude=["tests*", "tests"]),
     license="MIT Licence",
     include_package_data=True,
+    package_data={"py_enum": ["py.typed"]},
     zip_safe=False,
     platforms="any",
-    install_requires=[
-        "six>=1.12.0",
-    ],
-    python_requires=">=2.7",
+    install_requires=[],
+    python_requires=">=3.6",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
     ],
 )

@@ -2,7 +2,7 @@
 主要是给开发者阅读，描述开发前后需要注意的一些事项。
 
 # 开发环境
-- `> python2.7 or > python3.6`的python环境
+- `python3.9`的python环境
 - 新建虚拟环境`.env`在项目根目录下，`source .env/bin/activate`
   - virtualenv --python=python2 .env
   - pyvenv3 .env
@@ -45,7 +45,7 @@
 # 打包发版
 （以下命令都定义在了Makefile中了）
 - `make clean-build` 删除本地构建缓存目录：`py_enum.egg-info`和`dist`
-- `python setup.py sdist bdist_wheel --universal` 执行打包
+- `python setup.py sdist bdist_wheel` 执行打包
 - `twine check dist/*` 检查生成的文件是否符合pypi的要求
 - `twine upload -r pypi dist/py*` 上传包
   - 需要本地`~/.pypirc`配置用户名密码

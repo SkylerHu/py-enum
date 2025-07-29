@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # coding=utf-8
-import six
-import json
 import pytest
 import argparse
 
@@ -9,7 +7,7 @@ from pickle import dumps, loads, HIGHEST_PROTOCOL
 
 from py_enum import ChoiceEnum, unique
 
-from tests.app.enums import Color, Status, OrderColor
+from tests.app.enums import Color, Status
 
 
 def test_enum_value():
@@ -46,25 +44,31 @@ def test_attribute_deletion():
 
 
 def test_invalid_names():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Invalid enum member name: mro"):
 
         class Wrong(ChoiceEnum):
-            mro = (1, 2)
+            mro = (1, "2")
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="use for label, should be a string"):
 
         class Wrong2(ChoiceEnum):
             test = (1, 2)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="value should be a tuple"):
 
         class Wrong3(ChoiceEnum):
             test = 1
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="len should be >= 2"):
 
         class Wrong4(ChoiceEnum):
             test = (1,)
+
+    with pytest.raises(ValueError, match="duplicate values found in"):
+
+        class Wrong5(ChoiceEnum):
+            V1 = (1, "label-name")
+            V2 = (1, "label-value")
 
 
 def test_contains():
@@ -122,18 +126,15 @@ def test_no_such_enum_member():
 
 
 def test_order_members():
-    _colors = Color
-    if six.PY2:
-        _colors = OrderColor
-    else:
-        with pytest.raises(TypeError):
-            # python3定义了排序，属性顺序必须一致
-            class Color2(ChoiceEnum):
-                _order_ = "RED BLUE GREEN"
-                RED = (1, "红色")
-                GREEN = (2, "绿色")
-                BLUE = (3, "蓝色")
+    with pytest.raises(TypeError):
+        # python3定义了排序，属性顺序必须一致
+        class Color2(ChoiceEnum):
+            _order_ = "RED BLUE GREEN"
+            RED = (1, "红色")
+            GREEN = (2, "绿色")
+            BLUE = (3, "蓝色")
 
+    _colors = Color
     lst = [_colors.RED.value, _colors.GREEN.value, _colors.BLUE.value]
     assert [m.value for m in list(_colors)] == lst
     assert [m.label for m in list(_colors)] == [_colors.get_label(v) for v in lst]
@@ -155,13 +156,6 @@ def test_unique_clean():
             RED = (1, "红色")
             GREEN = (2, "绿色")
             BLUE = (1, "蓝色")
-
-
-def test_check_type():
-    with pytest.raises(ValueError):
-
-        class Color(ChoiceEnum):
-            RED = 1
 
 
 def test_label():
@@ -194,15 +188,14 @@ def test_enum_extra():
 
 
 def test_to_js_enum():
-    items = OrderColor.to_js_enum()
-    assert len(items) == len(OrderColor)
+    items = Color.to_js_enum()
+    assert len(items) == len(Color)
     expect_output = [
-        {"key": "RED", "value": 1, "label": "红色"},
-        {"key": "GREEN", "value": 2, "label": "绿色"},
-        {"key": "BLUE", "value": 3, "label": "蓝色", "extra": {"value": "blue"}},
+        {"key": "RED", "label": "红色", "value": 1},
+        {"key": "GREEN", "label": "绿色", "value": 2},
+        {"key": "BLUE", "label": "蓝色", "value": 3, "extra": {"value": "blue"}},
     ]
-    assert items == expect_output
-    assert json.dumps(items) == json.dumps(expect_output)
+    assert items == expect_output, items
 
 
 def test_use_in_argparse():
@@ -226,8 +219,6 @@ def test_use_in_argparse():
 
 def test_cls_property():
     _colors = Color
-    if six.PY2:
-        _colors = OrderColor
     assert _colors.values == [1, 2, 3]
     assert _colors.names == ["RED", "GREEN", "BLUE"]
     assert _colors.labels == ["红色", "绿色", "蓝色"]
