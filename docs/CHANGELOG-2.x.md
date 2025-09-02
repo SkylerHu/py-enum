@@ -1,5 +1,8 @@
 # Release Notes
 
+## 2.1.1
+- chore: 调整pyi中的typing声明
+
 ## 2.1.0
 - feat: 去掉对py2的支持，要求py>=3.6
     - 继承原生Enum，保障其他项目使用时能通过mypy检测
