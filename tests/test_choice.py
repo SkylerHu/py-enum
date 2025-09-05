@@ -44,7 +44,9 @@ def test_attribute_deletion():
 
 
 def test_invalid_names():
-    with pytest.raises(ValueError, match="Invalid enum member name: mro"):
+    # Invalid enum member name: mro
+    # invalid enum member name(s) 'mro' # python 3.12
+    with pytest.raises(ValueError, match="nvalid enum member name"):
 
         class Wrong(ChoiceEnum):
             mro = (1, "2")
