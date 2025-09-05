@@ -55,6 +55,8 @@ len(colors) == 3  # true
 Color.RED.value in Color  # true
 1 in Color  # true
 0 not in Color  # true
+
+# 以下是在原生基础上扩展的属性和方法
 Color.values  # [1, 2, 3]
 Color.names  # ['RED', 'GREEN', 'BLUE']
 Color.labels  # ['红色', '绿色', '蓝色']
@@ -92,55 +94,7 @@ member.extra == None  # true，因为没有定义
 member.value in Color  # true
 ```
 
-### 2.4 泛型类型支持
-
-py-enum 提供了三种枚举类型，支持不同的值类型：
-
-#### 2.4.1 IntChoiceEnum - 整数类型枚举
-```python
-from py_enum import IntChoiceEnum
-
-class Color(IntChoiceEnum):
-    RED = (1, "红色")
-    GREEN = (2, "绿色")
-    BLUE = (3, "蓝色")
-
-# 类型检查支持
-def process_color(color: Color) -> str:
-    return f"Color: {color.value} - {color.label}"
-
-print(Color.RED.value)  # 1 (int类型)
-print(type(Color.RED.value))  # <class 'int'>
-```
-
-#### 2.4.2 StrChoiceEnum - 字符串类型枚举
-```python
-from py_enum import StrChoiceEnum
-
-class Status(StrChoiceEnum):
-    PROCESSING = ("processing", "处理中")
-    APPROVED = ("approved", "已审批")
-
-# 类型检查支持
-def process_status(status: Status) -> str:
-    return f"Status: {status.value} - {status.label}"
-
-print(Status.PROCESSING.value)  # "processing" (str类型)
-print(type(Status.PROCESSING.value))  # <class 'str'>
-```
-
-#### 2.4.3 ChoiceEnum - 通用类型枚举
-```python
-from py_enum import ChoiceEnum
-
-class MixedChoice(ChoiceEnum):
-    MIXED = ("mixed", "混合")
-
-# 值类型为 Any
-print(MixedChoice.MIXED.value)  # "mixed"
-```
-
-### 2.5 在Python argparse中使用
+### 2.4 在Python argparse中使用
 ```python
 import argparse
 
@@ -150,7 +104,7 @@ args = parser.parse_args(['--color', str(Color.RED.value)])
 # args.color == Color.RED.value
 ```
 
-### 2.6 在Django中使用
+### 2.5 在Django中使用
 ```python
 from django.db import models
 
@@ -163,7 +117,7 @@ instance.color = colors.BLUE.value
 instance.save()
 ```
 
-### 2.7 在DRF中使用
+### 2.6 在DRF中使用
 ```python
 from rest_framework import serializers
 
