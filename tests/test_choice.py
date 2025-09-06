@@ -74,8 +74,10 @@ def test_invalid_names():
 
 
 def test_contains():
+    assert Color.RED in Color
     assert Color.RED.value in Color
     assert 0 not in Color
+    assert Status.CLOSED in Status
     assert Status.CLOSED.value in Status
     assert Color(Color.RED.value) in Color
 
