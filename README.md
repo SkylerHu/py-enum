@@ -52,7 +52,10 @@ Color.RED.value  # 1
 type(Color.RED)  # <enum 'Color'>
 str(Color.RED)  # (1, 红色)
 len(colors) == 3  # true
+Color.RED in Color  # true
 Color.RED.value in Color  # true
+Color.RED.value in Color.values  # true
+Color.RED in Color.values  # false  # 不支持如此使用
 1 in Color  # true
 0 not in Color  # true
 
