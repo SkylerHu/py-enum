@@ -31,17 +31,18 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - name: Install tox and any other packages
-        run: pip install tox coveralls
+      - name: Install tox
+        run: pip install tox
 
       - name: Run tox targets for ${{ matrix.python }}
         run: |
           pyFlag=$(echo ${{ matrix.python }} | tr -d .)
           for e in `tox -l | grep "$pyFlag-" | grep -v lint`; do tox -e $e; done
 
-      - name: Upload coverage
+      - name: Upload coverage to Codecov
         if: ${{ matrix.python == '3.9' }}
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-        run:
-          coveralls
+        uses: codecov/codecov-action@v5
+        with:
+          files: .coverage/coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
