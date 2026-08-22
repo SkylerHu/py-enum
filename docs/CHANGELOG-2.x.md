@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 For 1.x releases, see [CHANGELOG-1.x](./CHANGELOG-1.x.md).
 
+## 2.1.2
+
+### Changed
+
+- Updated package description.
+- Added bilingual (English & Chinese) documentation support.
+
 ## 2.1.1
 
 ### Fixed
