@@ -18,13 +18,13 @@ version = version_match.group(1)
 
 read_me = read("README.md")
 # 替换文档的相对路径为绝对路径地址
-read_me = read_me.replace("(./docs/", "(https://github.com/SkylerHu/py-enum/blob/master/docs/")
+read_me = read_me.replace("(./docs/", "(https://github.com/skylerhu/py-enum/blob/master/docs/")
 
 
 setup(
     name="py-enum",
     version=version,
-    url="https://github.com/SkylerHu/py-enum.git",
+    url="https://github.com/skylerhu/py-enum.git",
     author="SkylerHu",
     author_email="skylerhu@qq.com",
     description="enums for choices fields",

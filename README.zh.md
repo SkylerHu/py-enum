@@ -1,6 +1,6 @@
 # py-enum
 
-[中文文档](README.zh.md) | **English**
+**中文** | [English](README.md)
 
 [![PyPI - Version](https://img.shields.io/pypi/v/py-enum)](https://pypi.org/project/py-enum/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/py-enum)](https://pypistats.org/packages/py-enum)
@@ -13,87 +13,87 @@
 [![GitHub License](https://img.shields.io/github/license/skylerhu/py-enum)](https://github.com/skylerhu/py-enum/blob/master/LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-A Python `ChoiceEnum` module that extends `enum.Enum` with `label`, `extra`, and `choices` support. Built for:
+一个扩展了 `enum.Enum` 的 Python 枚举模块，为常见场景提供 `label`、`extra`、`choices` 支持：
 
-- `choices` parameter of argparse `add_argument`
-- `choices` parameter of Django `models.CharField` / `models.IntegerField`
-- `choices` parameter of Django REST framework `ChoiceField`
+- argparse 使用 `add_argument` 的参数 `choices`
+- Django 中 `models.CharField` / `models.IntegerField` 的参数 `choices`
+- Django REST framework `ChoiceField` 的参数 `choices`
 
-## Installation
+## 安装
 
 ```bash
 pip install py-enum
 ```
 
-## Quick Start
+## 快速开始
 
-### Define Enums
+### 定义枚举
 
 ```python
 from py_enum import ChoiceEnum
 
 class Color(ChoiceEnum):
-    RED = (1, 'Red')
-    GREEN = (2, 'Green')
-    BLUE = (3, 'Blue', {'value': 'blue'})
+    RED = (1, '红色')
+    GREEN = (2, '绿色')
+    BLUE = (3, '蓝色', {'value': 'blue'})
 
 class Status(ChoiceEnum):
-    PROCESSING = ('processing', 'Processing')
-    APPROVED = ('approved', 'Approved')
-    CANCELED = ('canceled', 'Canceled')
-    CLOSED = ('closed', 'Closed')
+    PROCESSING = ('processing', '处理中')
+    APPROVED = ('approved', '已审批')
+    CANCELED = ('canceled', '已取消')
+    CLOSED = ('closed', '已关闭')
 ```
 
-Each member is defined as `Key = (value, label, extra)`: `value` is the enum value, `label` is the description, and `extra` is an optional field of any type.
+按照 `Key = (value, label, extra)` 的形式定义：`value` 是枚举值，`label` 是描述，`extra` 是可选的额外信息（任意类型）。
 
-### Basic Usage
+### 基础用法
 
 ```python
 Color.RED          # Color.RED
 Color.RED.value    # 1
 type(Color.RED)    # <enum 'Color'>
-str(Color.RED)     # (1, Red)
+str(Color.RED)     # (1, 红色)
 len(Color) == 3    # True
 Color.RED in Color            # True
 Color.RED.value in Color      # True
 Color.RED.value in Color.values  # True
-Color.RED in Color.values     # False  # not supported
+Color.RED in Color.values     # False  # 不支持如此使用
 1 in Color         # True
 0 not in Color     # True
 
-# Extended class properties
+# 扩展的类属性
 Color.values   # [1, 2, 3]
 Color.names    # ['RED', 'GREEN', 'BLUE']
-Color.labels   # ['Red', 'Green', 'Blue']
-Color.choices  # [(1, 'Red'), (2, 'Green'), (3, 'Blue')]
+Color.labels   # ['红色', '绿色', '蓝色']
+Color.choices  # [(1, '红色'), (2, '绿色'), (3, '蓝色')]
 
-# Extended class methods
-Color.get_label(Color.RED.value)   # 'Red'
+# 扩展的类方法
+Color.get_label(Color.RED.value)   # '红色'
 Color.get_extra(Color.BLUE.value)  # {'value': 'blue'}
 
-# Iteration
+# 遍历
 for member in Color:
     print(member.value, member.label)
-# 1 Red
-# 2 Green
-# 3 Blue
+# 1 红色
+# 2 绿色
+# 3 蓝色
 
 ```
 
-### Member Properties
+### 成员属性
 
 ```python
-member = Color(Color.RED.value)  # or Color(1)
+member = Color(Color.RED.value)  # 或者 Color(1)
 member.value   # 1
 member.name    # 'RED'
-member.label   # 'Red'
-member.option  # (1, 'Red')
-member.extra   # None (when not defined)
-# All properties above are read-only; assignment raises AttributeError
+member.label   # '红色'
+member.option  # (1, '红色')
+member.extra   # None（未定义时）
+# 以上属性均为只读，赋值会抛出 AttributeError
 member.value in Color  # True
 ```
 
-### Usage with argparse
+### 在 argparse 中使用
 
 ```python
 import argparse
@@ -104,13 +104,13 @@ args = parser.parse_args(['--color', str(Color.RED.value)])
 # args.color == Color.RED.value
 ```
 
-### Usage with Django
+### 在 Django 中使用
 
 ```python
 from django.db import models
 
 class ColorModel(models.Model):
-    color = models.IntegerField(verbose_name='color', choices=Color.choices, default=Color.RED.value)
+    color = models.IntegerField(verbose_name='颜色', choices=Color.choices, default=Color.RED.value)
 
 instance = ColorModel.objects.create()
 assert instance.color == Color.RED.value
@@ -118,13 +118,13 @@ instance.color = Color.BLUE.value
 instance.save()
 ```
 
-### Usage with Django REST framework
+### 在 DRF 中使用
 
 ```python
 from rest_framework import serializers
 
 class ColorSerializer(serializers.Serializer):
-    color = serializers.ChoiceField(help_text='Select color', choices=Color.choices, default=Color.RED.value)
+    color = serializers.ChoiceField(help_text='选择颜色', choices=Color.choices, default=Color.RED.value)
 
 s = ColorSerializer()
 s = ColorSerializer(data={'color': Color.RED.value})
@@ -132,39 +132,39 @@ assert s.is_valid() is True
 s = ColorSerializer(data={'color': 1})
 assert s.is_valid() is True
 s = ColorSerializer(data={'color': 0})
-assert s.is_valid() is False  # value not in enum, validation fails
+assert s.is_valid() is False  # 值不在枚举定义范围内，校验不通过
 ```
 
-### Frontend Integration
+### 前端集成
 
-`to_js_enum()` returns an array that can be serialized and used with the frontend enum library [js-enumerate](https://github.com/skylerhu/js-enum):
+`to_js_enum()` 输出数组数据，可序列化后配合前端枚举库 [js-enumerate](https://github.com/skylerhu/js-enum) 使用：
 
 ```python
 Color.to_js_enum()
 # [
-#     {"key": "RED", "value": 1, "label": "Red"},
-#     {"key": "GREEN", "value": 2, "label": "Green"},
-#     {"key": "BLUE", "value": 3, "label": "Blue", "extra": {"value": "blue"}}
+#     {"key": "RED", "value": 1, "label": "红色"},
+#     {"key": "GREEN", "value": 2, "label": "绿色"},
+#     {"key": "BLUE", "value": 3, "label": "蓝色", "extra": {"value": "blue"}}
 # ]
 ```
 
-## Comparison with Django `models.Choices`
+## 与 Django `models.Choices` 对比
 
-| Feature | `ChoiceEnum` | Django `models.Choices` |
+| 特性 | `ChoiceEnum` | Django `models.Choices` |
 |---|---|---|
-| Django version requirement | None (pure Python) | Django 3.0+ |
-| Works outside Django | Yes | No |
-| `extra` field | Yes | No |
-| `to_js_enum()` frontend integration | Yes | No |
+| Django 版本要求 | 无（纯 Python） | Django 3.0+ |
+| 非 Django 项目可用 | 是 | 否 |
+| `extra` 扩展字段 | 是 | 否 |
+| `to_js_enum()` 前端集成 | 是 | 否 |
 
-## Changelog
+## 变更日志
 
-See [CHANGELOG-2.x](./docs/CHANGELOG-2.x.md) for the latest release notes.
+查看 [CHANGELOG-2.x](./docs/CHANGELOG-2.x.zh.md) 了解最新版本变更记录。
 
-## Contributing
+## 参与贡献
 
-Contributions are welcome! Please read the [Contributing Guide](./docs/CONTRIBUTING.md) before submitting a pull request.
+欢迎贡献！提交 PR 前请阅读[贡献指南](./docs/CONTRIBUTING.zh.md)。
 
-## License
+## 许可证
 
-This project is licensed under the [MIT License](./LICENSE).
+本项目基于 [MIT 许可证](./LICENSE) 开源。
