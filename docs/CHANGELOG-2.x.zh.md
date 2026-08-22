@@ -1,6 +1,6 @@
 # 变更日志
 
-**中文** | [English](CHANGELOG-2.x.md)
+**中文** | [English](./CHANGELOG-2.x.md)
 
 本项目的所有重要变更都会记录在此文件中。
 
@@ -8,7 +8,7 @@
 
 1.x 版本请查看 [CHANGELOG-1.x](./CHANGELOG-1.x.md)。
 
-## 2.1.2
+## 2.1.3
 
 ### 文档
 

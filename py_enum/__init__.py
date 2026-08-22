@@ -3,6 +3,6 @@
 from enum import Enum, unique  # noqa: F401,E402
 from .choice import ChoiceEnum  # noqa: F401,E402
 
-__version__ = "2.1.2"
+__version__ = "2.1.3"
 
 VERSION = __version__

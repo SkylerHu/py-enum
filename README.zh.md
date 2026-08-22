@@ -1,6 +1,6 @@
 # py-enum
 
-**中文** | [English](README.md)
+**中文** | [English](./README.md)
 
 [![PyPI - Version](https://img.shields.io/pypi/v/py-enum)](https://pypi.org/project/py-enum/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/py-enum)](https://pypistats.org/packages/py-enum)

@@ -18,7 +18,7 @@ version = version_match.group(1)
 
 read_me = read("README.md")
 # 替换文档的相对路径为绝对路径地址
-read_me = read_me.replace("(./docs/", "(https://github.com/skylerhu/py-enum/blob/master/docs/")
+read_me = read_me.replace("(./", "(https://github.com/skylerhu/py-enum/blob/master/")
 
 
 setup(

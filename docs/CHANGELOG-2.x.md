@@ -1,6 +1,6 @@
 # Changelog
 
-[中文文档](CHANGELOG-2.x.zh.md) | **English**
+[中文文档](./CHANGELOG-2.x.zh.md) | **English**
 
 All notable changes to this project will be documented in this file.
 
@@ -10,7 +10,7 @@ For 1.x releases, see [CHANGELOG-1.x](./CHANGELOG-1.x.md).
 
 ## 2.1.2
 
-### Changed
+### Documentation
 
 - Updated package description.
 - Added bilingual (English & Chinese) documentation support.
