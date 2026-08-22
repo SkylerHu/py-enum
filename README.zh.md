@@ -35,7 +35,7 @@ from py_enum import ChoiceEnum
 class Color(ChoiceEnum):
     RED = (1, '红色')
     GREEN = (2, '绿色')
-    BLUE = (3, '蓝色', {'hex': 'blue'})
+    BLUE = (3, '蓝色', {'value': 'blue'})
 
 class Status(ChoiceEnum):
     PROCESSING = ('processing', '处理中')
@@ -57,6 +57,7 @@ len(Color) == 3    # True
 Color.RED in Color            # True
 Color.RED.value in Color      # True
 Color.RED.value in Color.values  # True
+Color.RED in Color.values     # False  # 不支持如此使用
 1 in Color         # True
 0 not in Color     # True
 
@@ -68,7 +69,7 @@ Color.choices  # [(1, '红色'), (2, '绿色'), (3, '蓝色')]
 
 # 扩展的类方法
 Color.get_label(Color.RED.value)   # '红色'
-Color.get_extra(Color.BLUE.value)  # {'hex': 'blue'}
+Color.get_extra(Color.BLUE.value)  # {'value': 'blue'}
 
 # 遍历
 for member in Color:
@@ -76,20 +77,21 @@ for member in Color:
 # 1 红色
 # 2 绿色
 # 3 蓝色
+
 ```
 
 ### 成员属性
 
 ```python
-member = Color(1)
+member = Color(Color.RED.value)  # 或者 Color(1)
 member.value   # 1
 member.name    # 'RED'
 member.label   # '红色'
 member.option  # (1, '红色')
 member.extra   # None（未定义时）
+# 以上属性均为只读，赋值会抛出 AttributeError
+member.value in Color  # True
 ```
-
-以上属性均为只读，赋值会抛出 `AttributeError`。
 
 ### 在 argparse 中使用
 
@@ -109,6 +111,11 @@ from django.db import models
 
 class ColorModel(models.Model):
     color = models.IntegerField(verbose_name='颜色', choices=Color.choices, default=Color.RED.value)
+
+instance = ColorModel.objects.create()
+assert instance.color == Color.RED.value
+instance.color = Color.BLUE.value
+instance.save()
 ```
 
 ### 在 DRF 中使用
@@ -118,6 +125,14 @@ from rest_framework import serializers
 
 class ColorSerializer(serializers.Serializer):
     color = serializers.ChoiceField(help_text='选择颜色', choices=Color.choices, default=Color.RED.value)
+
+s = ColorSerializer()
+s = ColorSerializer(data={'color': Color.RED.value})
+assert s.is_valid() is True
+s = ColorSerializer(data={'color': 1})
+assert s.is_valid() is True
+s = ColorSerializer(data={'color': 0})
+assert s.is_valid() is False  # 值不在枚举定义范围内，校验不通过
 ```
 
 ### 前端集成
@@ -129,7 +144,7 @@ Color.to_js_enum()
 # [
 #     {"key": "RED", "value": 1, "label": "红色"},
 #     {"key": "GREEN", "value": 2, "label": "绿色"},
-#     {"key": "BLUE", "value": 3, "label": "蓝色", "extra": {"hex": "blue"}}
+#     {"key": "BLUE", "value": 3, "label": "蓝色", "extra": {"value": "blue"}}
 # ]
 ```
 

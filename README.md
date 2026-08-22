@@ -35,7 +35,7 @@ from py_enum import ChoiceEnum
 class Color(ChoiceEnum):
     RED = (1, 'Red')
     GREEN = (2, 'Green')
-    BLUE = (3, 'Blue', {'hex': '#0000FF'})
+    BLUE = (3, 'Blue', {'value': 'blue'})
 
 class Status(ChoiceEnum):
     PROCESSING = ('processing', 'Processing')
@@ -57,6 +57,7 @@ len(Color) == 3    # True
 Color.RED in Color            # True
 Color.RED.value in Color      # True
 Color.RED.value in Color.values  # True
+Color.RED in Color.values     # False  # not supported
 1 in Color         # True
 0 not in Color     # True
 
@@ -68,7 +69,7 @@ Color.choices  # [(1, 'Red'), (2, 'Green'), (3, 'Blue')]
 
 # Extended class methods
 Color.get_label(Color.RED.value)   # 'Red'
-Color.get_extra(Color.BLUE.value)  # {'hex': '#0000FF'}
+Color.get_extra(Color.BLUE.value)  # {'value': 'blue'}
 
 # Iteration
 for member in Color:
@@ -76,20 +77,21 @@ for member in Color:
 # 1 Red
 # 2 Green
 # 3 Blue
+
 ```
 
 ### Member Properties
 
 ```python
-member = Color(1)
+member = Color(Color.RED.value)  # or Color(1)
 member.value   # 1
 member.name    # 'RED'
 member.label   # 'Red'
 member.option  # (1, 'Red')
 member.extra   # None (when not defined)
+# All properties above are read-only; assignment raises AttributeError
+member.value in Color  # True
 ```
-
-All properties above are read-only. Attempting to assign will raise `AttributeError`.
 
 ### Usage with argparse
 
@@ -109,6 +111,11 @@ from django.db import models
 
 class ColorModel(models.Model):
     color = models.IntegerField(verbose_name='color', choices=Color.choices, default=Color.RED.value)
+
+instance = ColorModel.objects.create()
+assert instance.color == Color.RED.value
+instance.color = Color.BLUE.value
+instance.save()
 ```
 
 ### Usage with Django REST framework
@@ -118,6 +125,14 @@ from rest_framework import serializers
 
 class ColorSerializer(serializers.Serializer):
     color = serializers.ChoiceField(help_text='Select color', choices=Color.choices, default=Color.RED.value)
+
+s = ColorSerializer()
+s = ColorSerializer(data={'color': Color.RED.value})
+assert s.is_valid() is True
+s = ColorSerializer(data={'color': 1})
+assert s.is_valid() is True
+s = ColorSerializer(data={'color': 0})
+assert s.is_valid() is False  # value not in enum, validation fails
 ```
 
 ### Frontend Integration
@@ -129,7 +144,7 @@ Color.to_js_enum()
 # [
 #     {"key": "RED", "value": 1, "label": "Red"},
 #     {"key": "GREEN", "value": 2, "label": "Green"},
-#     {"key": "BLUE", "value": 3, "label": "Blue", "extra": {"hex": "#0000FF"}}
+#     {"key": "BLUE", "value": 3, "label": "Blue", "extra": {"value": "blue"}}
 # ]
 ```
 
